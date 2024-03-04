@@ -2,22 +2,31 @@
 #define UNICODE
 #endif 
 
+//API
 #include <windows.h>
-#include <Windows.h>
-#include <tchar.h>
 
+//Frequently used
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include <wingdi.h>
-#include <windowsx.h>
+//Project subparts
+//#include <structs.h>
+//#include <lines.h>
+//#include <transform.h>
+//#include <fill.h>
 
-//sources of info
-//https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp?view=msvc-170
-//compiler options add to linker: -static-libgcc -lgdi32
+
+
+////Likely will not be used
+//#include <Windows.h>
+//#include <tchar.h>
+//#include <wingdi.h>
+//#include <windowsx.h>
+
+
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -27,8 +36,7 @@ int WINAPI WinMain(
    _In_ LPSTR     lpCmdLine,
    _In_ int       nCmdShow
 ){
-	
-	//structure with info about app
+	//Structure with info about app
 	WNDCLASSEX wcex;
 	wcex.cbSize         = sizeof(WNDCLASSEX);
 	wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -43,7 +51,6 @@ int WINAPI WinMain(
 	wcex.lpszClassName  = L"Sample Window Class";
 	wcex.hIconSm        = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 	
-	//Lx is the same as _T(x) ?
 	//Register window
 	if (!RegisterClassEx(&wcex))
 	{
@@ -56,32 +63,7 @@ int WINAPI WinMain(
 	}
 	
 	static TCHAR szWindowClass[] = L"DesktopApp";
-	static TCHAR szTitle[] = L"Guided Tour";
-
-	// The parameters to CreateWindowEx explained:
-	// WS_EX_OVERLAPPEDWINDOW : An optional extended window style.
-	// szWindowClass: the name of the application
-	// szTitle: the text that appears in the title bar
-	// WS_OVERLAPPEDWINDOW: the type of window to create
-	// CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
-	// 500, 100: initial size (width, length)
-	// NULL: the parent of this window
-	// NULL: this application does not have a menu bar
-	// hInstance: the first parameter from WinMain
-	// NULL: not used in this application
-	
-	//HWND hWnd = CreateWindowEx(
-	//WS_EX_OVERLAPPEDWINDOW,
-	//   szWindowClass,
-	//   szTitle,
-	//   WS_OVERLAPPEDWINDOW,
-	//   CW_USEDEFAULT, CW_USEDEFAULT,
-	//   500, 100,
-	//   NULL,
-	//   NULL,
-	//   hInstance,
-	//   NULL
-	//);
+	static TCHAR szTitle[] = L"Project";
 
 	const wchar_t CLASS_NAME[]  = L"Sample Window Class";
 	HWND hwnd = CreateWindowEx(
@@ -114,11 +96,9 @@ int WINAPI WinMain(
 	// The parameters to ShowWindow explained:
 	// hWnd: the value returned from CreateWindow
 	// nCmdShow: the fourth parameter from WinMain
-	
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
-
-	printf("hello");
+	printf("\nWindow is running");
 	
 	
 	MSG msg;
@@ -137,6 +117,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
     case WM_DESTROY:
+    	printf("\nWindow is closing");
         PostQuitMessage(0);
         return 0;
 
@@ -149,10 +130,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//TCHAR greeting[] = L"Hello, Windows desktop!";
 			//TextOut(hdc, 5, 5, greeting, lstrlen(greeting));
-            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
+            //FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
 			
 			SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-            SetPixel(hdc,50,50,RGB(50,50,50));
+            //SetPixel(hdc,50,50,RGB(50,50,50));
 			//TextOut(hdc,5, 5,greeting, len(greeting));
 			//TextOut(hdc,5, 5, greeting, 50);
             EndPaint(hwnd, &ps);
@@ -165,13 +146,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             MessageBox(hwnd, L"Left mouse button clicked!", L"Mouse Click", MB_OK);
             break;
             
+    case WM_RBUTTONDOWN:
+            // Handle left button click here
+            static TCHAR rckickmessage[] = L"DesktopApp";
+            MessageBox(hwnd, L"Right mouse button clicked!", L"Mouse Click", MB_OK);
+            break;
+            
 	default:
       	return DefWindowProc(hwnd, uMsg, wParam, lParam);
       	break;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
-
-
-
-

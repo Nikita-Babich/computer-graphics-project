@@ -1,0 +1,35 @@
+---compiler options add to linker: -static-libgcc -lgdi32
+
+---empirical notes
+L"x" is the macro to replace _T("x") if it fails
+
+---sources of info
+https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp?view=msvc-170
+
+---most important function
+SetPixel(hdc, 100, 100, RGB(255, 0, 0));
+
+// The parameters to CreateWindowEx explained:
+	// WS_EX_OVERLAPPEDWINDOW : An optional extended window style.
+	// szWindowClass: the name of the application
+	// szTitle: the text that appears in the title bar
+	// WS_OVERLAPPEDWINDOW: the type of window to create
+	// CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
+	// 500, 100: initial size (width, length)
+	// NULL: the parent of this window
+	// NULL: this application does not have a menu bar
+	// hInstance: the first parameter from WinMain
+	// NULL: not used in this application
+	
+	//HWND hWnd = CreateWindowEx(
+	//WS_EX_OVERLAPPEDWINDOW,
+	//   szWindowClass,
+	//   szTitle,
+	//   WS_OVERLAPPEDWINDOW,
+	//   CW_USEDEFAULT, CW_USEDEFAULT,
+	//   500, 100,
+	//   NULL,
+	//   NULL,
+	//   hInstance,
+	//   NULL
+	//);
