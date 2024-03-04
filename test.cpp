@@ -114,6 +114,7 @@ int WINAPI WinMain(
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	int mouseX,mouseY;
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -127,29 +128,32 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hwnd, &ps);
 
             // All painting occurs here, between BeginPaint and EndPaint.
-			
-			//TCHAR greeting[] = L"Hello, Windows desktop!";
-			//TextOut(hdc, 5, 5, greeting, lstrlen(greeting));
-            //FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-			
 			SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-            //SetPixel(hdc,50,50,RGB(50,50,50));
-			//TextOut(hdc,5, 5,greeting, len(greeting));
-			//TextOut(hdc,5, 5, greeting, 50);
+			
+			
             EndPaint(hwnd, &ps);
         }
         return 0;
         
     case WM_LBUTTONDOWN:
             // Handle left button click here
-            static TCHAR lckickmessage[] = L"DesktopApp";
-            MessageBox(hwnd, L"Left mouse button clicked!", L"Mouse Click", MB_OK);
+            
+            // Extract the x and y coordinates from lParam
+            mouseX = LOWORD(lParam);
+            mouseY = HIWORD(lParam);
+            printf("\n left mouse click \t %d %d ",mouseX,mouseY);
+            //static TCHAR lckickmessage[] = L"DesktopApp";
+            //MessageBox(hwnd, L"Left mouse button clicked!", L"Mouse Click", MB_OK);
             break;
             
     case WM_RBUTTONDOWN:
             // Handle left button click here
-            static TCHAR rckickmessage[] = L"DesktopApp";
-            MessageBox(hwnd, L"Right mouse button clicked!", L"Mouse Click", MB_OK);
+            mouseX = LOWORD(lParam);
+            mouseY = HIWORD(lParam);
+            printf("\n right mouse click \t %d %d ",mouseX,mouseY);
+            
+            //static TCHAR rckickmessage[] = L"DesktopApp";
+            //MessageBox(hwnd, L"Right mouse button clicked!", L"Mouse Click", MB_OK);
             break;
             
 	default:
