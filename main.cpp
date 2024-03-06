@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+//My header, 
 #include <picasso.h>
 
 //Project subparts
@@ -133,7 +134,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			//Point p1 = (Point){3, 5};
 			//Point p2 = (Point){30, 50};
-			//drawLine(p1, p2, RGB(255, 0, 0), enum LineMethod method)
+			//selectedMethod = DDA1;
+			//drawLine(p1, p2, RGB(255, 0, 0), DDA1)
 			
             EndPaint(hwnd, &ps);
         }

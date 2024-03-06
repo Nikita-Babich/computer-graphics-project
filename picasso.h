@@ -1,3 +1,10 @@
+#ifndef PICASSO_INCLUDED
+#define PICASSO_INCLUDED
+
+// Check if <windows.h> is already included
+#ifndef _WINDOWS_
+#include <windows.h>
+#endif
 
 typedef struct {
     int x;          // X-coordinate
@@ -20,21 +27,15 @@ enum LineMethod {
     DDA2 = 2,
     Bresenham = 3
 };
-enum LineMethod selectedMethod = DDA;
+enum LineMethod selectedMethod = DDA1;
 
 
 
-void drawLine(Point start_f, Point end_f, COLORREF color, enum LineMethod method)
-{
-	if (method == DDA1) {
-		dda1(start, end, color);
-	}
-	else if (method == DDA2) {
-		dda2(start, end, color);
-	}
-	else if (method == BR) {
-		br(start, end, color);
-	}
-	update();
-}
+void drawLine(Point start_float, Point end_float, COLORREF color, enum LineMethod method);
+void dda1(Pixel start, Pixel end, COLORREF color);
+void dda2(Pixel start, Pixel end, COLORREF color);
+void br(Pixel start, Pixel end, COLORREF color);
+
+
+
 //SetPixel(hdc, 100, 100, RGB(255, 0, 0));
