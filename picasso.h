@@ -31,19 +31,18 @@ enum LineMethod {
 enum LineMethod selectedMethod = DDA1;
 
 
-
+//Declarations
 void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
 //void dda2(Pixel start, Pixel end, COLORREF color);
 //void br(Pixel start, Pixel end, COLORREF color);
 
 
-
+//Hints
 //SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 
-
-void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color)
-{
+//Implementations
+void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 	Pixel start = convertPointToPixel(start_float);
 	Pixel end = convertPointToPixel(end_float);
 	if (selectedMethod == DDA1) {
@@ -105,7 +104,6 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		}
 	}
 	return;
-	
 }
 
 #endif // PICASSO_H_INCLUDED
