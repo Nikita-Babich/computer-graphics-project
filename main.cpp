@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <picasso.h>
+
 //Project subparts
 //#include <structs.h>
 //#include <lines.h>
@@ -128,8 +130,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hwnd, &ps);
 
             // All painting occurs here, between BeginPaint and EndPaint.
-			SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-			
+			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
+			//Point p1 = (Point){3, 5};
+			//Point p2 = (Point){30, 50};
+			//drawLine(p1, p2, RGB(255, 0, 0), enum LineMethod method)
 			
             EndPaint(hwnd, &ps);
         }
