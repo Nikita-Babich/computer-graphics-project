@@ -13,7 +13,7 @@
 #include <time.h>
 
 //My header, 
-#include <picasso.h>
+#include "picasso.h"
 
 //Project subparts
 //#include <structs.h>
@@ -128,14 +128,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
+            HDC hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
 
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-			//Point p1 = (Point){3, 5};
-			//Point p2 = (Point){30, 50};
-			//selectedMethod = DDA1;
-			//drawLine(p1, p2, RGB(255, 0, 0), DDA1)
+			Point p1 = (Point){3, 5};
+			Point p2 = (Point){30, 50};
+			selectedMethod = DDA1;
+			drawLine(hdc, p1, p2, RGB(255, 0, 0));
 			
             EndPaint(hwnd, &ps);
         }

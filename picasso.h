@@ -1,6 +1,7 @@
 #ifndef PICASSO_INCLUDED
 #define PICASSO_INCLUDED
 
+
 // Check if <windows.h> is already included
 #ifndef _WINDOWS_
 #include <windows.h>
@@ -31,11 +32,80 @@ enum LineMethod selectedMethod = DDA1;
 
 
 
-void drawLine(Point start_float, Point end_float, COLORREF color, enum LineMethod method);
-void dda1(Pixel start, Pixel end, COLORREF color);
-void dda2(Pixel start, Pixel end, COLORREF color);
-void br(Pixel start, Pixel end, COLORREF color);
+void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
+void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
+//void dda2(Pixel start, Pixel end, COLORREF color);
+//void br(Pixel start, Pixel end, COLORREF color);
 
 
 
 //SetPixel(hdc, 100, 100, RGB(255, 0, 0));
+
+
+void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color)
+{
+	Pixel start = convertPointToPixel(start_float);
+	Pixel end = convertPointToPixel(end_float);
+	if (selectedMethod == DDA1) {
+		dda1(hdc, start, end, color);
+	}
+	else if (selectedMethod == DDA2) {
+		//dda2(start, end, color);
+	}
+	else if (selectedMethod == Bresenham) {
+		//br(start, end, color);
+	}
+	//update();
+}
+
+
+void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
+	int x1 = start.x; int y1 = start.y;
+	int x2 = end.x; int y2 = end.y;
+	int DX = x2 - x1;
+	int DY = y2 - y1;
+	int minx, maxx, miny, maxy;
+	float m;
+	//horisontal and vertical
+	if (DX == 0) {
+		miny = (y1 < y2) ? y1 : y2;
+		maxy = (y1 >= y2) ? y1 : y2;
+		for (int y = miny; y <= maxy; y++) {
+			SetPixel(hdc, x1, y, color);
+		}
+		return;
+	}
+	else if (DY == 0) {
+		minx = (x1 < x2) ? x1 : x2;
+		maxx = (x1 >= x2) ? x1 : x2;
+		for (int x = minx; x <= maxx; x++) {
+			SetPixel(hdc, x, y1, color);
+		}
+		return;
+	}
+	//along Ox
+	if (abs(DX) >= abs(DY)) {
+		if (x2 > x1) { miny = y1; minx = x1; maxy = y2; maxx = x2; }
+		else { miny = y2; minx = x2; maxy = y1; maxx = x1; }
+		float y = static_cast<float>(miny);
+		m = static_cast<float>(DY) / static_cast<float>(DX);
+		for (int x = minx; x <= maxx; x++) {
+			SetPixel(hdc, x, static_cast<int>(y), color);
+			y += m;
+		}
+	}
+	else { // along Oy
+		if (y2 > y1) { miny = y1; minx = x1; maxy = y2; maxx = x2; }
+		else { miny = y2; minx = x2; maxy = y1; maxx = x1; }
+		float x = static_cast<float>(minx);
+		m = static_cast<float>(DX) / static_cast<float>(DY);
+		for (int y = miny; y <= maxy; y++) {
+			SetPixel(hdc, static_cast<int>(x), y, color);
+			x += m;
+		}
+	}
+	return;
+	
+}
+
+#endif // PICASSO_H_INCLUDED
