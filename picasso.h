@@ -42,6 +42,7 @@ void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
+void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
 
 
 //Hints
@@ -189,4 +190,9 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		}
 	}
 };
+
+void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+	
+}
+
 #endif // PICASSO_H_INCLUDED
