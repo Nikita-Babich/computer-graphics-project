@@ -11,17 +11,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+//Task specific
+#include <iostream>
+#include <vector>
 
-//My header, 
+//My header,
 #include "picasso.h"
-
-//Project subparts
-//#include <structs.h>
-//#include <lines.h>
-//#include <transform.h>
-//#include <fill.h>
-
-
 
 ////Likely will not be used
 //#include <Windows.h>
@@ -60,7 +55,7 @@ int WINAPI WinMain(
 	   MessageBox(NULL,
 	      L"Call to RegisterClassEx failed!",
 	      L"Windows Desktop Guided Tour",
-	      NULL);
+	      NULL); //I don't know what parameter uType is for, works with NULL
 	
 	   return 1;
 	}
@@ -134,34 +129,53 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			Point p1 = (Point){3, 5};
 			Point p2 = (Point){30, 50};
-			selectedMethod = DDA1;
+			selectedMethod = DDA2;
 			drawLine(hdc, p1, p2, RGB(255, 0, 0));
+			//take shape
+			//transform //i don't have to remember original state, so this can be moved away
+			//cut by screen edges
+			//draw updated shape
+			
 			
             EndPaint(hwnd, &ps);
         }
         return 0;
         
     case WM_LBUTTONDOWN:
-            // Handle left button click here
-            
-            // Extract the x and y coordinates from lParam
             mouseX = LOWORD(lParam);
             mouseY = HIWORD(lParam);
-            printf("\n left mouse click \t %d %d ",mouseX,mouseY);
-            //static TCHAR lckickmessage[] = L"DesktopApp";
-            //MessageBox(hwnd, L"Left mouse button clicked!", L"Mouse Click", MB_OK);
+            printf("\n Left mouse click \t %d %d ",mouseX,mouseY);
+            
+            //add a Point to Shape
             break;
             
     case WM_RBUTTONDOWN:
-            // Handle left button click here
             mouseX = LOWORD(lParam);
             mouseY = HIWORD(lParam);
-            printf("\n right mouse click \t %d %d ",mouseX,mouseY);
-            
-            //static TCHAR rckickmessage[] = L"DesktopApp";
-            //MessageBox(hwnd, L"Right mouse button clicked!", L"Mouse Click", MB_OK);
+            printf("\n Light mouse click \t %d %d ",mouseX,mouseY);
+            //complete shape 
+            PROGRAM_STATE = INPUT_COMPLETE;
             break;
-            
+    case WM_KEYDOWN:
+        // Handle keydown event
+        switch (wParam) {
+            case VK_LEFT:
+                break;
+            case VK_RIGHT:
+                break;
+        }
+        break;
+
+    case WM_KEYUP:
+        // Handle keyup event, might not need those
+        switch (wParam) {
+            case VK_LEFT:
+                break;
+            case VK_RIGHT:
+                break;
+        }
+        break;        
+        
 	default:
       	return DefWindowProc(hwnd, uMsg, wParam, lParam);
       	break;

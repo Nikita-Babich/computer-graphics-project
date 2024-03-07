@@ -30,11 +30,17 @@ enum LineMethod {
 };
 enum LineMethod selectedMethod = DDA1;
 
+enum progState {
+    INPUT_POINTS = 1,
+    INPUT_COMPLETE = 2
+};
+enum progState PROGRAM_STATE = INPUT_POINTS;
+
 
 //Declarations
 void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
-//void dda2(Pixel start, Pixel end, COLORREF color);
+void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
 //void br(Pixel start, Pixel end, COLORREF color);
 
 
@@ -49,7 +55,7 @@ void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 		dda1(hdc, start, end, color);
 	}
 	else if (selectedMethod == DDA2) {
-		//dda2(start, end, color);
+		dda2(hdc, start, end, color);
 	}
 	else if (selectedMethod == Bresenham) {
 		//br(start, end, color);
@@ -106,4 +112,25 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 	return;
 }
 
+void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+	int x1 = start.x; int y1 = start.y;
+	int x2 = end.x; int y2 = end.y;
+	int DX = x2 - x1;
+	int DY = y2 - y1;
+	float dx, dy;
+	int steps; //equals longest dimension
+	if (abs(DX) >= abs(DY)) steps = abs(DX);
+		else steps = abs(DY);
+	dx = DX / (float)steps;
+	dy = DY / (float)steps;
+	float x = x1;
+	float y = y1;
+	int i = 0;
+	while (i <= steps) {
+		SetPixel(hdc, static_cast<int>(x), static_cast<int>(y), color);
+		x = x + dx;
+		y = y + dy;
+		i++;
+	}
+};
 #endif // PICASSO_H_INCLUDED
