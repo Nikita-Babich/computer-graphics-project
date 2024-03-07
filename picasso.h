@@ -41,7 +41,7 @@ enum progState PROGRAM_STATE = INPUT_POINTS;
 void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
-//void br(Pixel start, Pixel end, COLORREF color);
+void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
 
 
 //Hints
@@ -58,9 +58,8 @@ void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 		dda2(hdc, start, end, color);
 	}
 	else if (selectedMethod == Bresenham) {
-		//br(start, end, color);
+		br(hdc, start, end, color);
 	}
-	//update();
 }
 
 
@@ -131,6 +130,63 @@ void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		x = x + dx;
 		y = y + dy;
 		i++;
+	}
+};
+
+void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+	int x1 = start.x; int y1 = start.y;
+	int x2 = end.x; int y2 = end.y;
+	int DX, DY;
+	int helper;
+	int k1, k2, p, x, y;
+	if (abs(x2-x1) > abs(y2-y1)) { //riadiaca Ox
+		//sorting
+		if (x2 < x1) { 
+			helper = x1; x1 = x2; x2 = helper;
+			helper = y1; y1 = y2; y2 = helper;}
+		DX = x2 - x1;
+		DY = y2 - y1;
+		//algo
+		k1 = 2 * DY; k2 = k1 + 2 * DX * ((DY > 0) ? -1 : 1);
+		p = k1 - DX;
+		x = x1; y = y1;
+		SetPixel(hdc, x, y, color);
+		while (x < x2) {
+			x++;
+			if (DY > 0) {
+				if (p > 0) { y++; p += k2; } else p += k1;
+			}
+			else {
+				if (p < 0) { y--; p += k2; } else p += k1;
+			}
+			SetPixel(hdc, x, y, color);
+		}
+	}
+	else { //riadiaca Oy
+		//sorting
+		if (y2 < y1) {
+			helper = x1; x1 = x2; x2 = helper;
+			helper = y1; y1 = y2; y2 = helper;
+		}
+		DX = x2 - x1;
+		DY = y2 - y1;
+		//algo
+		k1 = 2 * DX; k2 = k1 + 2 * DY * ((DX > 0) ? -1 : 1);
+		p = k1 - DY;
+		x = x1; y = y1;
+		SetPixel(hdc, x, y, color);
+		while (y < y2) {
+			y++;
+			if (DX > 0) {
+				if (p > 0) { x++; p += k2; }
+				else p += k1;
+			}
+			else {
+				if (p < 0) { x--; p += k2; }
+				else p += k1;
+			}
+			SetPixel(hdc, x, y, color);
+		}
 	}
 };
 #endif // PICASSO_H_INCLUDED
