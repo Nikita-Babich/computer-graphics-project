@@ -24,7 +24,7 @@
 //#include <wingdi.h>
 //#include <windowsx.h>
 
-
+Objects scene;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

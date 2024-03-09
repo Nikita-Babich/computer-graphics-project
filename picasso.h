@@ -28,6 +28,9 @@ typedef struct {
     Point finish;          //
     //COLORREF color; // Color information
 } Segment;
+typedef std::vector<Point> Contour;
+typedef std::vector<Segment> Figure;
+typedef std::vector<std::vector<Segment>> Objects;
 
 enum LineMethod {
     DDA1 = 1,
