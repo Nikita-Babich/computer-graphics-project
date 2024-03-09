@@ -127,16 +127,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-			Point p1 = (Point){3, 5};
-			Point p2 = (Point){30, 50};
+			
 			selectedMethod = Bresenham;
-			drawLine(hdc, p1, p2, RGB(255, 0, 0));
-			br_circle(hdc, (Pixel){200,200}, (Pixel){200,300}, RGB(255, 0, 0) );
-			br_circle(hdc, rpi(), rpi(), RGB(255, 0, 0) );
-			br_circle(hdc, rpi(), rpi(), RGB(255, 0, 0) );
+			br_circle(hdc, rpi(), rpi(), rc() );
+			br_circle(hdc, rpi(), rpi(), rc() );
+			br_circle(hdc, rpi(), rpi(), rc() );
 			
 			Figure f1 = rf();
-			drawFigure(hdc, f1, RGB(255, 0, 0)); 
+			drawFigure(hdc, f1, rc()); 
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges

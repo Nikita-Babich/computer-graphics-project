@@ -45,6 +45,7 @@ Figure rf(){
 	}
 	return result;
 }
+COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 
 
 //Contour convertFigureToContour(Figure f)
