@@ -12,6 +12,7 @@ typedef struct {
     int y;          // Y-coordinate
     //COLORREF color; // Color information
 } Pixel;
+Pixel rp(){ return (Pixel){rand() % 800, rand() % 800}; } //random Pixel
 
 typedef struct {
     float x;          // X-coordinate
@@ -22,6 +23,11 @@ typedef struct {
 Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
 Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; }
 
+typedef struct {
+    Point start;          //
+    Point finish;          //
+    //COLORREF color; // Color information
+} Segment;
 
 enum LineMethod {
     DDA1 = 1,
@@ -192,7 +198,40 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 };
 
 void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
-	
+	int xc = start.x;
+	int yc = start.y;
+	int ex = end.x;
+	int ey = end.y;
+	float rd = sqrt((ex - xc) * (float)(ex - xc) + (ey - yc) * (ey - yc)); // (int)sqrt // sqrt4
+	int r = (rd < INT16_MAX) ? (int)rd : 10; //prevention of too big numbers
+
+	int p = 1 - r;
+	int x = 0; int y = r;
+	int dvaX = 3; int dvaY = 2*r - 2;
+	while (x <= y) {
+		//  54
+		//6    3
+		//7    2
+		//  81
+		SetPixel(hdc, xc + x, yc  - y, color); //1
+		SetPixel(hdc, xc - x, yc  - y, color); //8
+		SetPixel(hdc, xc  - y, yc - x, color); //3
+		SetPixel(hdc, xc  - y, yc + x, color); //2
+
+		SetPixel(hdc, xc + x, yc  + y, color); //4
+		SetPixel(hdc, xc - x, yc  + y, color); //5
+		SetPixel(hdc, xc  + y, yc - x, color); //6
+		SetPixel(hdc, xc  + y, yc + x, color); //7
+
+		if (p > 0) {
+			p = p - dvaY;
+			y--;
+			dvaY = dvaY - 2;
+		}
+		p = p + dvaX;
+		dvaX = dvaX + 2;
+		x++;
+	}
 }
 
 #endif // PICASSO_H_INCLUDED

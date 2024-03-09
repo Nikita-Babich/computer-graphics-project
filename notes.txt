@@ -1,5 +1,8 @@
 ---compiler options add to linker: -static-libgcc -lgdi32
 
+
+
+
 ---empirical notes
 L"x" is the macro to replace _T("x") if it fails
 
