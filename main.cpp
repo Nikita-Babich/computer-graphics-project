@@ -132,8 +132,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			selectedMethod = Bresenham;
 			drawLine(hdc, p1, p2, RGB(255, 0, 0));
 			br_circle(hdc, (Pixel){200,200}, (Pixel){200,300}, RGB(255, 0, 0) );
-			br_circle(hdc, rp(), rp(), RGB(255, 0, 0) );
-			br_circle(hdc, rp(), rp(), RGB(255, 0, 0) );
+			br_circle(hdc, rpi(), rpi(), RGB(255, 0, 0) );
+			br_circle(hdc, rpi(), rpi(), RGB(255, 0, 0) );
+			
+			Figure f1 = rf();
+			drawFigure(hdc, f1, RGB(255, 0, 0)); 
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges

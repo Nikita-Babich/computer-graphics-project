@@ -12,7 +12,7 @@ typedef struct {
     int y;          // Y-coordinate
     //COLORREF color; // Color information
 } Pixel;
-Pixel rp(){ return (Pixel){rand() % 800, rand() % 800}; } //random Pixel
+
 
 typedef struct {
     float x;          // X-coordinate
@@ -20,17 +20,35 @@ typedef struct {
     //COLORREF color; // Color information
 } Point;
 
-Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
-Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; }
-
 typedef struct {
     Point start;          //
     Point finish;          //
     //COLORREF color; // Color information
 } Segment;
+
 typedef std::vector<Point> Contour;
 typedef std::vector<Segment> Figure;
 typedef std::vector<std::vector<Segment>> Objects;
+
+Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
+Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; }
+
+Pixel rpi(){ return (Pixel){rand() % 800, rand() % 800}; } //random Pixel
+//Pixel rpo(){ return (Point){rand() % 800, rand() % 800}; } //random Point
+Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
+Figure rf(){
+	Figure result;
+	int size = rand()%10;
+	for(size_t i=0; i<size; i++){
+		Segment segment = rs();
+		result.push_back(segment);
+	}
+	return result;
+}
+
+
+//Contour convertFigureToContour(Figure f)
+//Figure convertContourToFigure(Contour c)
 
 enum LineMethod {
     DDA1 = 1,
@@ -52,6 +70,8 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
+void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
+void drawFigure(HDC hdc, Figure f, COLORREF color);
 
 
 //Hints
@@ -236,5 +256,12 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		x++;
 	}
 }
+
+void drawFigure(HDC hdc, Figure f, COLORREF color){
+	for (const Segment& segment : f) {
+		drawSegment(hdc, segment, color);
+	};
+}
+
 
 #endif // PICASSO_H_INCLUDED
