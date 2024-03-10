@@ -150,6 +150,7 @@ void translateMainContour(Direction dir);
 void rotateMainContour(Direction dir);
 void scaleMainContour(Direction dir);
 void shearMainContour(Direction dir);
+void symmetryMainContour();
 
 
 //Hints
@@ -379,7 +380,7 @@ void translateMainContour(Direction dir){
 }
 
 void rotateMainContour(Direction dir){
-	double rotSpeed = 0.03;
+	float rotSpeed = 0.03;
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
@@ -391,7 +392,7 @@ void rotateMainContour(Direction dir){
 }
 
 void scaleMainContour(Direction dir){
-	double scaleSpeed = 1.05;
+	float scaleSpeed = 1.05;
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
@@ -406,7 +407,7 @@ void scaleMainContour(Direction dir){
 }
 
 void shearMainContour(Direction dir){
-	double sheerSpeed = 0.05;
+	float sheerSpeed = 0.05;
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
@@ -417,6 +418,21 @@ void shearMainContour(Direction dir){
 			case LEFT: p.x = p.x + sheerSpeed*dif.y; break;
 			case RIGHT: p.x = p.x - sheerSpeed*dif.y; break;
 		}
+	}
+}
+
+void symmetryMainContour(){
+	Point A = main_contour[0];
+	Point B = main_contour[1];
+	Point dif = {B.x-A.x, B.y-A.y};
+	float u = dif.x, v = dif.y;
+	float a = v, b = -u, c = -a*B.x - b*B.y;
+	for (int i=2; i<main_contour.size(); i++) {
+		Point& p = main_contour[i];
+		Point old = p;
+		float param = (a*old.x+b*old.y+c) / (a*a+b*b);
+		p.x = old.x - 2*a * param;
+		p.y = old.y - 2*b * param;
 	}
 }
 

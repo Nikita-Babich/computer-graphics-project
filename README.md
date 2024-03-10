@@ -4,4 +4,4 @@ Instead of using Qt I have decided to do the project with WinAPI. This way I spe
 # Progress
 - 04.03.2024 Decided to do this through WinAPI
 - 07.03.2024 drawLine dda1 implemented
-- 11.03.2024 translation, rotation, scaling, drawing out of window
+- 11.03.2024 translation, rotation, scaling, drawing out of window, shear, symmetry

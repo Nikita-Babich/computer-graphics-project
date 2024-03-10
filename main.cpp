@@ -217,6 +217,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case 'G': shearMainContour(DOWN);  break;
 			case 'H': shearMainContour(RIGHT);  break;
 			case 'F': shearMainContour(LEFT);  break;
+			
+			case 'X': symmetryMainContour();  break;
 	
 			default: 
 				// Process other non-character keystrokes. 
