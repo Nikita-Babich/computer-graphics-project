@@ -34,6 +34,7 @@ int WINAPI WinMain(
    _In_ LPSTR     lpCmdLine,
    _In_ int       nCmdShow
 ){
+	srand(time(NULL));
 	//Structure with info about app
 	WNDCLASSEX wcex;
 	wcex.cbSize         = sizeof(WNDCLASSEX);
@@ -129,9 +130,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			
 			selectedMethod = Bresenham;
-			br_circle(hdc, rpi(), rpi(), rc() );
-			br_circle(hdc, rpi(), rpi(), rc() );
-			br_circle(hdc, rpi(), rpi(), rc() );
+			//br_circle(hdc, rpi(), rpi(), rc() );
+			//br_circle(hdc, rpi(), rpi(), rc() );
+			//br_circle(hdc, rpi(), rpi(), rc() );
 			
 			Figure f1 = rf();
 			drawFigure(hdc, f1, rc()); 
@@ -149,8 +150,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             mouseX = LOWORD(lParam);
             mouseY = HIWORD(lParam);
             printf("\n Left mouse click \t %d %d ",mouseX,mouseY);
+            //add a Point to Figure
+            switch(PROGRAM_STATE){
+            	case INPUT_POINTS:
+            		break;
+			}
             
-            //add a Point to Shape
+            
             break;
             
     case WM_RBUTTONDOWN:
@@ -160,6 +166,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             //complete shape 
             PROGRAM_STATE = INPUT_COMPLETE;
             break;
+            
     case WM_KEYDOWN:
         // Handle keydown event
         switch (wParam) {

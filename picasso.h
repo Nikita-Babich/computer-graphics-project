@@ -7,6 +7,8 @@
 #include <windows.h>
 #endif
 
+
+
 typedef struct {
     int x;          // X-coordinate
     int y;          // Y-coordinate
@@ -28,29 +30,56 @@ typedef struct {
 
 typedef std::vector<Point> Contour;
 typedef std::vector<Segment> Figure;
-typedef std::vector<std::vector<Segment>> Objects;
+typedef std::vector<Figure> Objects;
 
+
+// Converters
 Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
 Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; }
+//Contour convertFigureToContour(Figure f);
+Figure convertContourToFigure(Contour c){
+	int size = c.size();
+	
+};
 
-Pixel rpi(){ return (Pixel){rand() % 800, rand() % 800}; } //random Pixel
-//Pixel rpo(){ return (Point){rand() % 800, rand() % 800}; } //random Point
+Pixel rpi(){  return (Pixel){rand() % 800, rand() % 800}; } //random Pixel 
+Point rpo(){ return (Point){rand() % 800, rand() % 800}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
 Figure rf(){
 	Figure result;
-	int size = rand()%10;
+	int size = 10;
 	for(size_t i=0; i<size; i++){
 		Segment segment = rs();
 		result.push_back(segment);
+	}
+	
+	//test
+//	Point A = (Point){0,0};
+//	Point B = (Point){700,700};
+//	Segment diagonal = (Segment){ A, B };
+//	result.push_back(diagonal);
+	
+	return result;
+}
+Contour rcont(){
+	Contour result;
+	int size = 10;
+	for(size_t i=0; i<size; i++){
+		Point p = rpo();
+		result.push_back(p);
 	}
 	return result;
 }
 COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 
 
-//Contour convertFigureToContour(Figure f)
-//Figure convertContourToFigure(Contour c)
 
+
+
+Figure main_figure;
+Contour main_contour;
+
+// enum controllers
 enum LineMethod {
     DDA1 = 1,
     DDA2 = 2,
@@ -65,7 +94,7 @@ enum progState {
 enum progState PROGRAM_STATE = INPUT_POINTS;
 
 
-//Declarations
+//Declarations of drawing
 void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
@@ -73,12 +102,13 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
 void drawFigure(HDC hdc, Figure f, COLORREF color);
+void drawContour(HDC hdc, Contour C, COLORREF color);
 
 
 //Hints
 //SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 
-//Implementations
+//Implementations of drawing
 void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 	Pixel start = convertPointToPixel(start_float);
 	Pixel end = convertPointToPixel(end_float);
@@ -262,6 +292,10 @@ void drawFigure(HDC hdc, Figure f, COLORREF color){
 	for (const Segment& segment : f) {
 		drawSegment(hdc, segment, color);
 	};
+}
+
+void drawContour(HDC hdc, Contour C, COLORREF color){
+	
 }
 
 
