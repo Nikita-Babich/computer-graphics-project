@@ -119,6 +119,11 @@ enum LineMethod {
 };
 enum LineMethod selectedMethod = DDA1;
 
+enum SliceMethod {
+    CyrusBeck = 1,
+    SH = 2
+};
+
 enum Direction {
 	LEFT = 0,
 	RIGHT = 1,
@@ -151,6 +156,7 @@ void rotateMainContour(Direction dir);
 void scaleMainContour(Direction dir);
 void shearMainContour(Direction dir);
 void symmetryMainContour();
+bool pointInWindow(Point a){ return a.x<WINDOW_WIDTH & a.x>0 & a.y<WINDOW_HEIGHT & a.y>0};
 
 
 //Hints
