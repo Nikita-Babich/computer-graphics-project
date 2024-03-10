@@ -28,18 +28,18 @@ typedef struct {
     //COLORREF color; // Color information
 } Segment;
 
+typedef std::vector<Segment> Segments;
 typedef std::vector<Point> Contour;
-typedef std::vector<Segment> Figure;
-typedef std::vector<Figure> Objects;
+typedef std::vector<Contour> Objects;
 
 
 // Converters
 Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
 Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; }
-//Contour convertFigureToContour(Figure f);
-Figure convertContourToFigure(Contour c){
+//Contour convertSegmentsToContour(Segments f);
+Segments convertContourToSegments(Contour c){
 	int size = c.size();
-	Figure result;
+	Segments result;
 	Segment segment;
 	for (int i=0; i<size-1; i++) {
 		segment = {};
@@ -57,8 +57,8 @@ Figure convertContourToFigure(Contour c){
 Pixel rpi(){  return (Pixel){rand() % 800, rand() % 800}; } //random Pixel 
 Point rpo(){ return (Point){rand() % 800, rand() % 800}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
-Figure rf(){
-	Figure result;
+Segments rf(){
+	Segments result;
 	int size = 10;
 	for(size_t i=0; i<size; i++){
 		Segment segment = rs();
@@ -88,7 +88,7 @@ COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 
 
 // Global objects
-Figure main_figure;
+Segments main_Segments;
 Contour main_contour;
 COLORREF main_color;
 Objects scene;
@@ -115,7 +115,7 @@ void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
-void drawFigure(HDC hdc, Figure f, COLORREF color);
+void drawSegments(HDC hdc, Segments f, COLORREF color);
 void drawContour(HDC hdc, Contour C, COLORREF color);
 
 
@@ -302,15 +302,15 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 	}
 }
 
-void drawFigure(HDC hdc, Figure f, COLORREF color){
+void drawSegments(HDC hdc, Segments f, COLORREF color){
 	for (const Segment& segment : f) {
 		drawSegment(hdc, segment, color);
 	};
 }
 
 void drawContour(HDC hdc, Contour C, COLORREF color){
-	Figure f = convertContourToFigure(C);
-	drawFigure(hdc, f, color);
+	Segments f = convertContourToSegments(C);
+	drawSegments(hdc, f, color);
 }
 
 
