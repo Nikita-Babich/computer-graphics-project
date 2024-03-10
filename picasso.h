@@ -7,7 +7,8 @@
 #include <windows.h>
 #endif
 
-
+#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 800
 
 typedef struct {
     int x;          // X-coordinate
@@ -54,8 +55,8 @@ Segments convertContourToSegments(Contour c){
 	return result;
 };
 
-Pixel rpi(){  return (Pixel){rand() % 800, rand() % 800}; } //random Pixel 
-Point rpo(){ return (Point){rand() % 800, rand() % 800}; } //random Point
+Pixel rpi(){  return (Pixel){rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT}; } //random Pixel 
+Point rpo(){ return (Point){rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
 Segments rf(){
 	Segments result;
@@ -75,7 +76,7 @@ Segments rf(){
 }
 Contour rcont(){
 	Contour result;
-	int size = 10;
+	int size = 5;
 	for(size_t i=0; i<size; i++){
 		Point p = rpo();
 		result.push_back(p);
@@ -90,8 +91,24 @@ COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 // Global objects
 Segments main_Segments;
 Contour main_contour;
-COLORREF main_color;
+COLORREF main_color = RGB(0, 0, 0); 
 Objects scene;
+
+void OpenColorPicker(HWND hwnd) {
+    CHOOSECOLOR cc;
+    ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+    //cc.lStructSize = sizeof(CHOOSECOLOR);
+    cc.hwndOwner = hwnd;
+    cc.lpCustColors = NULL;
+    cc.rgbResult = main_color;
+    cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+    if (ChooseColor(&cc)) {
+        // User selected a color
+        main_color = cc.rgbResult;
+        // Add your logic to use the selected color as needed
+    }
+}
 
 // enum controllers
 enum LineMethod {
@@ -100,6 +117,13 @@ enum LineMethod {
     Bresenham = 3
 };
 enum LineMethod selectedMethod = DDA1;
+
+enum Direction {
+	LEFT = 0,
+	RIGHT = 1,
+	UP = 2,
+	DOWN = 3
+};
 
 enum progState {
     INPUT_POINTS = 1,
@@ -117,6 +141,11 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
 void drawSegments(HDC hdc, Segments f, COLORREF color);
 void drawContour(HDC hdc, Contour C, COLORREF color);
+void redrawAll();
+
+//Modifications
+void translatePoint(Direction dir, Point& p);
+void translateMainContour(Direction dir);
 
 
 //Hints
@@ -136,7 +165,6 @@ void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 		br(hdc, start, end, color);
 	}
 }
-
 
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 	int x1 = start.x; int y1 = start.y;
@@ -311,6 +339,37 @@ void drawSegments(HDC hdc, Segments f, COLORREF color){
 void drawContour(HDC hdc, Contour C, COLORREF color){
 	Segments f = convertContourToSegments(C);
 	drawSegments(hdc, f, color);
+}
+
+//void redrawAll(HWND hwnd){
+//	PAINTSTRUCT ps;
+//    HDC hdc = BeginPaint(hwnd, &ps); 
+//	selectedMethod = Bresenham;
+//	drawContour(hdc, main_contour, rc());
+//	EndPaint(hwnd, &ps);
+//}
+
+void redrawAll(HWND hwnd) {
+    // Invalidate the entire client area
+    InvalidateRect(hwnd, NULL, TRUE);
+
+    // Trigger a repaint message
+    UpdateWindow(hwnd);
+}
+
+//Implementations of modifications
+void translatePoint(Direction dir, Point& p){
+	switch(dir){
+		case LEFT: p.x = p.x-1; break;
+		case RIGHT: p.x = p.x+1; break;
+		case UP: p.y = p.y-1; break;
+		case DOWN: p.y = p.y+1; break;
+	}
+}
+void translateMainContour(Direction dir){
+	for (int i=0; i<main_contour.size(); i++) {
+		translatePoint(dir, main_contour[i]);
+	};
 }
 
 

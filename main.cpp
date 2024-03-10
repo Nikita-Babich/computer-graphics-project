@@ -4,6 +4,7 @@
 
 //API
 #include <windows.h>
+#include <commdlg.h> //colorpicker
 
 //Frequently used
 #include <stdio.h>
@@ -34,7 +35,7 @@ int WINAPI WinMain(
    _In_ LPSTR     lpCmdLine,
    _In_ int       nCmdShow
 ){
-	srand(time(NULL));
+	
 	//Structure with info about app
 	WNDCLASSEX wcex;
 	wcex.cbSize         = sizeof(WNDCLASSEX);
@@ -56,7 +57,7 @@ int WINAPI WinMain(
 	   MessageBox(NULL,
 	      L"Call to RegisterClassEx failed!",
 	      L"Windows Desktop Guided Tour",
-	      NULL); //I don't know what parameter uType is for, works with NULL
+	      MB_OK); //I don't know what parameter uType is for, works with NULL
 	
 	   return 1;
 	}
@@ -73,7 +74,7 @@ int WINAPI WinMain(
 
         // Position and size
         //CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        20,20,800,800,
+        20,20,WINDOW_HEIGHT,WINDOW_WIDTH,
 
         NULL,       // Parent window    
         NULL,       // Menu
@@ -87,7 +88,7 @@ int WINAPI WinMain(
 	   MessageBox(NULL,
 	      L"Call to CreateWindowEx failed!",
 	      L"Windows Desktop Guided Tour",
-	      NULL);
+	      MB_OK);
 	
 	   return 1;
 	}
@@ -96,6 +97,10 @@ int WINAPI WinMain(
 	// hWnd: the value returned from CreateWindow
 	// nCmdShow: the fourth parameter from WinMain
 	ShowWindow(hwnd, nCmdShow);
+	// Segment for setup
+	srand(time(NULL));
+	main_contour = rcont();
+	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
 	
@@ -129,7 +134,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			
-			selectedMethod = Bresenham;
+			//selectedMethod = Bresenham;
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			//br_circle(hdc, rpi(), rpi(), rc() );
@@ -137,8 +142,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//Figure f1 = rf();
 			//drawFigure(hdc, f1, rc()); 
 			
-			main_contour = rcont();
-			drawContour(hdc, main_contour, rc());
+			drawContour(hdc, main_contour, main_color);
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges
@@ -173,10 +177,34 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         // Handle keydown event
         switch (wParam) {
-            case VK_LEFT:
-                break;
-            case VK_RIGHT:
-                break;
+            case VK_LEFT: translateMainContour(LEFT); redrawAll(hwnd); break;
+            case VK_RIGHT: translateMainContour(RIGHT); redrawAll(hwnd); break;
+            case VK_UP: translateMainContour(UP); redrawAll(hwnd); break; 
+			case VK_DOWN: translateMainContour(DOWN); redrawAll(hwnd); break; 
+	
+			case VK_HOME: 
+				// Process the HOME key. 
+				break; 
+			case VK_END: 
+				// Process the END key. 
+				break; 
+			case VK_INSERT: 
+				// Process the INS key. 
+				break; 
+			case VK_DELETE: 
+				// Process the DEL key. 
+				break; 
+			case VK_F2: 
+				// Process the F2 key. 
+				break; 
+				
+			case 'C':
+				OpenColorPicker(hwnd);
+				break;
+	
+			default: 
+				// Process other non-character keystrokes. 
+				break; 
         }
         break;
 

@@ -1,4 +1,5 @@
----compiler options add to linker: -static-libgcc -lgdi32
+---compiler options add to linker: 
+-static-libgcc -lgdi32 -mwindows -lcomdlg32
 
 
 
@@ -8,6 +9,7 @@ L"x" is the macro to replace _T("x") if it fails
 
 ---sources of info
 https://learn.microsoft.com/en-us/cpp/windows/walkthrough-creating-windows-desktop-applications-cpp?view=msvc-170
+https://learn.microsoft.com/en-us/windows/win32/inputdev/using-keyboard-input
 
 ---most important function
 SetPixel(hdc, 100, 100, RGB(255, 0, 0));
