@@ -95,9 +95,10 @@ COLORREF main_color = RGB(0, 0, 0);
 Objects scene;
 
 void OpenColorPicker(HWND hwnd) {
+	printf("\n Color picker start %d", main_color);
     CHOOSECOLOR cc;
     ZeroMemory(&cc, sizeof(CHOOSECOLOR));
-    //cc.lStructSize = sizeof(CHOOSECOLOR);
+    cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems.
     cc.hwndOwner = hwnd;
     cc.lpCustColors = NULL;
     cc.rgbResult = main_color;
@@ -106,8 +107,8 @@ void OpenColorPicker(HWND hwnd) {
     if (ChooseColor(&cc)) {
         // User selected a color
         main_color = cc.rgbResult;
-        // Add your logic to use the selected color as needed
     }
+    printf("\n Color picker end %d", main_color);
 }
 
 // enum controllers
@@ -359,11 +360,12 @@ void redrawAll(HWND hwnd) {
 
 //Implementations of modifications
 void translatePoint(Direction dir, Point& p){
+	int translationSpeed = 3;
 	switch(dir){
-		case LEFT: p.x = p.x-1; break;
-		case RIGHT: p.x = p.x+1; break;
-		case UP: p.y = p.y-1; break;
-		case DOWN: p.y = p.y+1; break;
+		case LEFT: p.x = p.x - translationSpeed; break;
+		case RIGHT: p.x = p.x + translationSpeed; break;
+		case UP: p.y = p.y - translationSpeed; break;
+		case DOWN: p.y = p.y + translationSpeed; break;
 	}
 }
 void translateMainContour(Direction dir){

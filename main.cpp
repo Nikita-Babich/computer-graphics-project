@@ -141,8 +141,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//Figure f1 = rf();
 			//drawFigure(hdc, f1, rc()); 
-			
-			drawContour(hdc, main_contour, main_color);
+			HDC screenDC = GetDC(NULL);
+			drawContour(screenDC, main_contour, rc()); //main_color
+			ReleaseDC(NULL, screenDC);
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges
