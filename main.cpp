@@ -24,7 +24,7 @@
 //#include <wingdi.h>
 //#include <windowsx.h>
 
-Objects scene;
+
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -134,8 +134,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			
-			Figure f1 = rf();
-			drawFigure(hdc, f1, rc()); 
+			//Figure f1 = rf();
+			//drawFigure(hdc, f1, rc()); 
+			
+			main_contour = rcont();
+			drawContour(hdc, main_contour, rc());
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges

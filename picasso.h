@@ -39,7 +39,19 @@ Point convertPixelToPoint(Pixel px) { return (Point){(float)px.x, (float)px.y}; 
 //Contour convertFigureToContour(Figure f);
 Figure convertContourToFigure(Contour c){
 	int size = c.size();
-	
+	Figure result;
+	Segment segment;
+	for (int i=0; i<size-1; i++) {
+		segment = {};
+		segment.start = c[i];
+		segment.finish = c[i+1];
+		result.push_back(segment);
+	};
+	segment = {};
+	segment.start = c[size-1];
+	segment.finish = c[0];
+	result.push_back(segment);
+	return result;
 };
 
 Pixel rpi(){  return (Pixel){rand() % 800, rand() % 800}; } //random Pixel 
@@ -75,9 +87,11 @@ COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 
 
 
-
+// Global objects
 Figure main_figure;
 Contour main_contour;
+COLORREF main_color;
+Objects scene;
 
 // enum controllers
 enum LineMethod {
@@ -295,7 +309,8 @@ void drawFigure(HDC hdc, Figure f, COLORREF color){
 }
 
 void drawContour(HDC hdc, Contour C, COLORREF color){
-	
+	Figure f = convertContourToFigure(C);
+	drawFigure(hdc, f, color);
 }
 
 
