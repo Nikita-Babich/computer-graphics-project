@@ -180,10 +180,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         // Handle keydown event
         switch (wParam) {
-            case VK_LEFT: translateMainContour(LEFT); redrawAll(hwnd); break;
-            case VK_RIGHT: translateMainContour(RIGHT); redrawAll(hwnd); break;
-            case VK_UP: translateMainContour(UP); redrawAll(hwnd); break; 
-			case VK_DOWN: translateMainContour(DOWN); redrawAll(hwnd); break; 
+            case VK_LEFT: translateMainContour(LEFT); break;
+            case VK_RIGHT: translateMainContour(RIGHT);  break;
+            case VK_UP: translateMainContour(UP); break; 
+			case VK_DOWN: translateMainContour(DOWN);  break; 
 	
 			case VK_HOME: 
 				// Process the HOME key. 
@@ -205,14 +205,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				//OpenColorPicker(hwnd);
 				break;
 				
-			case 'Q': rotateMainContour(LEFT); redrawAll(hwnd); break;
-			case 'E': rotateMainContour(RIGHT); redrawAll(hwnd); break;
-			
+			case 'Q': rotateMainContour(LEFT);  break;
+			case 'E': rotateMainContour(RIGHT);  break;
+			case 'W': scaleMainContour(UP);  break;
+			case 'S': scaleMainContour(DOWN);  break;
+			case 'D': scaleMainContour(RIGHT);  break;
+			case 'A': scaleMainContour(LEFT);  break;
 	
 			default: 
 				// Process other non-character keystrokes. 
 				break; 
         }
+        redrawAll(hwnd);
         break;
 
     case WM_KEYUP:

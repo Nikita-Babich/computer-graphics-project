@@ -148,6 +148,7 @@ void redrawAll();
 void translatePoint(Direction dir, Point& p);
 void translateMainContour(Direction dir);
 void rotateMainContour(Direction dir);
+void scaleMainContour(Direction dir);
 
 
 //Hints
@@ -386,6 +387,24 @@ void rotateMainContour(Direction dir){
 		p.x = dif.x*cos(rotSpeed) + ((dir == RIGHT)?-1:1)*dif.y*sin(rotSpeed) + o.x;
 		p.y = ((dir == RIGHT)?1:-1)*dif.x*sin(rotSpeed) + dif.y*cos(rotSpeed) + o.y;
 	};
+}
+
+void scaleMainContour(Direction dir){
+	double scaleSpeed = 1.05;
+	Point& o = main_contour[0];
+	for (int i=1; i<main_contour.size(); i++) {
+		Point& p = main_contour[i];
+		Point dif = {p.x-o.x, p.y-o.y};
+		switch(dir){
+			case UP: p.y = dif.y*scaleSpeed + o.y; break;
+			case DOWN: p.y = dif.y/scaleSpeed+ o.y;break;
+			case LEFT: p.x = dif.x/scaleSpeed+ o.x;break;
+			case RIGHT: p.x = dif.x*scaleSpeed+ o.x;break;
+		}
+		
+		
+	}
+	
 }
 
 
