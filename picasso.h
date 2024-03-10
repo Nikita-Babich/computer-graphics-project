@@ -147,6 +147,7 @@ void redrawAll();
 //Modifications
 void translatePoint(Direction dir, Point& p);
 void translateMainContour(Direction dir);
+void rotateMainContour(Direction dir);
 
 
 //Hints
@@ -368,11 +369,25 @@ void translatePoint(Direction dir, Point& p){
 		case DOWN: p.y = p.y + translationSpeed; break;
 	}
 }
+
 void translateMainContour(Direction dir){
 	for (int i=0; i<main_contour.size(); i++) {
 		translatePoint(dir, main_contour[i]);
 	};
 }
+
+void rotateMainContour(Direction dir){
+	double rotSpeed = 0.03;
+	Point& o = main_contour[0];
+	for (int i=1; i<main_contour.size(); i++) {
+		Point& p = main_contour[i];
+		Point dif = {p.x-o.x, p.y-o.y};
+		
+		p.x = dif.x*cos(rotSpeed) + ((dir == RIGHT)?-1:1)*dif.y*sin(rotSpeed) + o.x;
+		p.y = ((dir == RIGHT)?1:-1)*dif.x*sin(rotSpeed) + dif.y*cos(rotSpeed) + o.y;
+	};
+}
+
 
 
 #endif // PICASSO_H_INCLUDED

@@ -141,9 +141,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//Figure f1 = rf();
 			//drawFigure(hdc, f1, rc()); 
-			HDC screenDC = GetDC(NULL);
-			drawContour(screenDC, main_contour, rc()); //main_color
-			ReleaseDC(NULL, screenDC);
+			
+			//HDC screenDC = GetDC(NULL);
+			drawContour(hdc, main_contour, rc()); //main_color
+			//ReleaseDC(NULL, screenDC);
+			
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
 			//cut by screen edges
@@ -200,8 +202,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break; 
 				
 			case 'C':
-				OpenColorPicker(hwnd);
+				//OpenColorPicker(hwnd);
 				break;
+				
+			case 'Q': rotateMainContour(LEFT); redrawAll(hwnd); break;
+			case 'E': rotateMainContour(RIGHT); redrawAll(hwnd); break;
+			
 	
 			default: 
 				// Process other non-character keystrokes. 
