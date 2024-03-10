@@ -4,7 +4,7 @@
 
 //API
 #include <windows.h>
-#include <commdlg.h> //colorpicker
+#include <commdlg.h> //colorpicker, doesn't work
 
 //Frequently used
 #include <stdio.h>
@@ -207,10 +207,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				
 			case 'Q': rotateMainContour(LEFT);  break;
 			case 'E': rotateMainContour(RIGHT);  break;
+			
 			case 'W': scaleMainContour(UP);  break;
 			case 'S': scaleMainContour(DOWN);  break;
 			case 'D': scaleMainContour(RIGHT);  break;
 			case 'A': scaleMainContour(LEFT);  break;
+			
+			case 'T': shearMainContour(UP);  break;
+			case 'G': shearMainContour(DOWN);  break;
+			case 'H': shearMainContour(RIGHT);  break;
+			case 'F': shearMainContour(LEFT);  break;
 	
 			default: 
 				// Process other non-character keystrokes. 

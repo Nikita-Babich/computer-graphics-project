@@ -149,6 +149,7 @@ void translatePoint(Direction dir, Point& p);
 void translateMainContour(Direction dir);
 void rotateMainContour(Direction dir);
 void scaleMainContour(Direction dir);
+void shearMainContour(Direction dir);
 
 
 //Hints
@@ -401,12 +402,23 @@ void scaleMainContour(Direction dir){
 			case LEFT: p.x = dif.x/scaleSpeed+ o.x;break;
 			case RIGHT: p.x = dif.x*scaleSpeed+ o.x;break;
 		}
-		
-		
 	}
-	
 }
 
+void shearMainContour(Direction dir){
+	double sheerSpeed = 0.05;
+	Point& o = main_contour[0];
+	for (int i=1; i<main_contour.size(); i++) {
+		Point& p = main_contour[i];
+		Point dif = {p.x-o.x, p.y-o.y};
+		switch(dir){
+			case UP: p.y = p.y - sheerSpeed*dif.x; break;
+			case DOWN: p.y = p.y + sheerSpeed*dif.x; break;
+			case LEFT: p.x = p.x + sheerSpeed*dif.y; break;
+			case RIGHT: p.x = p.x - sheerSpeed*dif.y; break;
+		}
+	}
+}
 
 
 #endif // PICASSO_H_INCLUDED
