@@ -7,10 +7,10 @@
 #include <windows.h>
 #endif
 
-#define WINDOW_HEIGHT 1000
-#define WINDOW_WIDTH 1000
-#define DRAW_HEIGHT 800
-#define DRAW_WIDTH 800
+#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 800
+#define DRAW_HEIGHT 400
+#define DRAW_WIDTH 400
 
 
 
@@ -40,7 +40,7 @@ typedef std::vector<Contour> Objects;
 //math
 float scalarProduct(Point A, Point B){ return A.x*B.x+A.y*B.y; }
 Point dif(Point A, Point B){ return (Point){B.x-A.x,B.y-A.y}; }
-Point orthoVector(Point A, Point B){Point d = dif(A,B); return (Point){d.y,-d.x};}
+Point orthoVector(Point A, Point B){Point d = dif(A,B); return (Point){-d.y,d.x};}
 
 // Converters
 Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
@@ -65,6 +65,7 @@ Segments convertContourToSegments(Contour c){
 	return result;
 };
 
+//random creation
 Pixel rpi(){  return (Pixel){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Pixel 
 Point rpo(){ return (Point){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
@@ -75,13 +76,6 @@ Segments rf(){
 		Segment segment = rs();
 		result.push_back(segment);
 	}
-	
-	//test
-//	Point A = (Point){0,0};
-//	Point B = (Point){700,700};
-//	Segment diagonal = (Segment){ A, B };
-//	result.push_back(diagonal);
-	
 	return result;
 }
 Contour rcont(int size){
@@ -100,17 +94,20 @@ COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 // Global objects
 Segments main_Segments;
 Contour main_contour;
+Objects scene; //for future if needed to drw separte objects
+
 COLORREF main_color = RGB(0, 0, 0);
 COLORREF BLACK = RGB(0, 0, 0); 
 COLORREF RED = RGB(255, 0, 0);
 COLORREF BLUE = RGB(0, 0, 255);
-Objects scene;
+COLORREF GREEN = RGB(0, 255, 0);
+COLORREF PINK = RGB(255, 0, 255);
 
 void OpenColorPicker(HWND hwnd) {
 	printf("\n Color picker start %d", main_color);
     CHOOSECOLOR cc;
     ZeroMemory(&cc, sizeof(CHOOSECOLOR));
-    cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems.
+    cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems and runtime crashes
     cc.hwndOwner = hwnd;
     cc.lpCustColors = NULL;
     cc.rgbResult = main_color;
@@ -159,6 +156,7 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
 void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
 void drawSegments(HDC hdc, Segments f, COLORREF color);
 void drawContour(HDC hdc, Contour C, COLORREF color);
+void drawRect(HDC hdc,Point A, Point B, COLORREF color);
 void redrawAll();
 
 //Modifications
@@ -195,7 +193,6 @@ void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
 		br(hdc, start, end, color);
 	}
 }
-
 void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
@@ -243,7 +240,6 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 	}
 	return;
 }
-
 void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
@@ -265,7 +261,6 @@ void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		i++;
 	}
 };
-
 void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
@@ -322,7 +317,6 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		}
 	}
 };
-
 void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 	int xc = start.x;
 	int yc = start.y;
@@ -359,36 +353,37 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		x++;
 	}
 }
-
 void drawSegments(HDC hdc, Segments f, COLORREF color){
 	for (const Segment& segment : f) {
 		drawSegment(hdc, segment, color);
 	};
 }
-
 void drawContour(HDC hdc, Contour C, COLORREF color){
 	Contour E = {
-		(Point){0,0}, (Point){DRAW_WIDTH,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, (Point){0,DRAW_HEIGHT}, (Point){0,0}
+		(Point){0,0}, 
+		(Point){DRAW_WIDTH,0}, 
+		(Point){DRAW_WIDTH,DRAW_WIDTH}, 
+		(Point){0,DRAW_WIDTH}, 
+		(Point){0,0}
 	};
-	//C = sliceContour(C,E); //problematic
+	C = sliceContour(C,E); //problematic
 	Segments f = convertContourToSegments(C);
 	drawSegments(hdc, f, color);
 }
-
-//void redrawAll(HWND hwnd){
-//	PAINTSTRUCT ps;
-//    HDC hdc = BeginPaint(hwnd, &ps); 
-//	selectedMethod = Bresenham;
-//	drawContour(hdc, main_contour, rc());
-//	EndPaint(hwnd, &ps);
-//}
-
 void redrawAll(HWND hwnd) {
     // Invalidate the entire client area
     InvalidateRect(hwnd, NULL, TRUE);
 
     // Trigger a repaint message
     UpdateWindow(hwnd);
+}
+void drawRect(HDC hdc,Point A, Point C, COLORREF color){
+	Point B = (Point){C.x, A.y};
+	Point D = (Point){A.x, C.y};
+	drawLine(hdc, A, B, RED);
+	drawLine(hdc, B, C, GREEN);
+	drawLine(hdc, C, D, BLUE);
+	drawLine(hdc, D, A, PINK);
 }
 
 //Implementations of modifications
@@ -401,13 +396,11 @@ void translatePoint(Direction dir, Point& p){
 		case DOWN: p.y = p.y + translationSpeed; break;
 	}
 }
-
 void translateMainContour(Direction dir){
 	for (int i=0; i<main_contour.size(); i++) {
 		translatePoint(dir, main_contour[i]);
 	};
 }
-
 void rotateMainContour(Direction dir){
 	float rotSpeed = 0.03;
 	Point& o = main_contour[0];
@@ -419,7 +412,6 @@ void rotateMainContour(Direction dir){
 		p.y = ((dir == RIGHT)?1:-1)*d.x*sin(rotSpeed) + d.y*cos(rotSpeed) + o.y;
 	};
 }
-
 void scaleMainContour(Direction dir){
 	float scaleSpeed = 1.05;
 	Point& o = main_contour[0];
@@ -434,7 +426,6 @@ void scaleMainContour(Direction dir){
 		}
 	}
 }
-
 void shearMainContour(Direction dir){
 	float sheerSpeed = 0.05;
 	Point& o = main_contour[0];
@@ -449,7 +440,6 @@ void shearMainContour(Direction dir){
 		}
 	}
 }
-
 void symmetryMainContour(){
 	Point A = main_contour[0];
 	Point B = main_contour[1];
@@ -474,8 +464,8 @@ Contour sliceContour(Contour original, Contour edges){
 		Point A = original[0];
 		Point B = original[1];
 		Point d = dif(A,B);
-		bool inside = pointInDraw(A) & pointInDraw(B);
-		if(inside == FALSE) return result;
+		//bool inside = pointInDraw(A) | pointInDraw(B);
+		//if(inside == FALSE) return result;
 		float tl=0, tu=1;
 		int edgesCount = edges.size();
 		for (int i=0; i < edgesCount-1; i++){
@@ -492,16 +482,16 @@ Contour sliceContour(Contour original, Contour edges){
 			}
 		}
 		if(tl<tu){
-			Point p1 = A, p2 = B;
-			p1.x += d.x*tl;
-			p1.y += d.y*tl;
+			A.x += d.x*tl;
+			A.y += d.y*tl;
 			
-			p2.x += d.x*tu;
-			p2.y += d.y*tu;
+			B.x += d.x*tu;
+			B.y += d.y*tu;
 		}
-		
+		result.push_back(B);
+		result.push_back(A);
 	} else {
-		
+		return original;
 	}
 	return result;
 }

@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+
 //Task specific
 #include <iostream>
 #include <vector>
@@ -100,7 +101,7 @@ int WINAPI WinMain(
 	ShowWindow(hwnd, nCmdShow);
 	// Segment for setup
 	srand(time(NULL));
-	main_contour = rcont(3);
+	main_contour = rcont(2);
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
@@ -133,7 +134,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
-
+			
+			drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			
@@ -145,10 +147,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//Figure f1 = rf();
 			//drawFigure(hdc, f1, rc()); 
 			
-			HDC screenDC = GetDC(NULL);
-			RECT fullscreen;
+			//HDC screenDC = GetDC(NULL);
+			//RECT fullscreen;
 			drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
-			ReleaseDC(NULL, screenDC);
+			//ReleaseDC(NULL, screenDC);
 			
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away

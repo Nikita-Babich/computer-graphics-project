@@ -5,4 +5,5 @@ Instead of using Qt I have decided to do the project with WinAPI. This way I spe
 - 04.03.2024 Decided to do this through WinAPI
 - 07.03.2024 drawLine dda1, dda2, bresenham implemented
 - 09.03.2024 circle, abstrctions for lines
-- 11.03.2024 translation, rotation, scaling, drawing out of window, shear, symmetry
+- 10.03.2024 translation, rotation, scaling, drawing out of window, shear, symmetry
+- 11.03.2024 working on slicer
