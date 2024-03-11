@@ -1,8 +1,7 @@
 ---compiler options add to linker: 
--static-libgcc -lgdi32 -mwindows -lcomdlg32
+-static-libgcc -lgdi32 -mwindows -lcomdlg32 -Wnarrowing
 
-
-
+TODO: slicer does not return anything
 
 ---empirical notes
 L"x" is the macro to replace _T("x") if it fails

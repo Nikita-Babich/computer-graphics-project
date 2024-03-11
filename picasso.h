@@ -7,13 +7,17 @@
 #include <windows.h>
 #endif
 
-#define WINDOW_HEIGHT 800
-#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1000
+#define DRAW_HEIGHT 800
+#define DRAW_WIDTH 800
+
+
 
 typedef struct {
     int x;          // X-coordinate
     int y;          // Y-coordinate
-    //COLORREF color; // Color information
+    COLORREF color; // Color information
 } Pixel;
 
 
@@ -33,6 +37,10 @@ typedef std::vector<Segment> Segments;
 typedef std::vector<Point> Contour;
 typedef std::vector<Contour> Objects;
 
+//math
+float scalarProduct(Point A, Point B){ return A.x*B.x+A.y*B.y; }
+Point dif(Point A, Point B){ return (Point){B.x-A.x,B.y-A.y}; }
+Point orthoVector(Point A, Point B){Point d = dif(A,B); return (Point){d.y,-d.x};}
 
 // Converters
 Pixel convertPointToPixel(Point p) { return (Pixel){(int)p.x, (int)p.y}; }
@@ -48,15 +56,17 @@ Segments convertContourToSegments(Contour c){
 		segment.finish = c[i+1];
 		result.push_back(segment);
 	};
-	segment = {};
-	segment.start = c[size-1];
-	segment.finish = c[0];
-	result.push_back(segment);
+	if(size >=3){
+		segment = {};
+		segment.start = c[size-1];
+		segment.finish = c[0];
+		result.push_back(segment);
+	}
 	return result;
 };
 
-Pixel rpi(){  return (Pixel){rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT}; } //random Pixel 
-Point rpo(){ return (Point){rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT}; } //random Point
+Pixel rpi(){  return (Pixel){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Pixel 
+Point rpo(){ return (Point){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
 Segments rf(){
 	Segments result;
@@ -74,9 +84,8 @@ Segments rf(){
 	
 	return result;
 }
-Contour rcont(){
+Contour rcont(int size){
 	Contour result;
-	int size = 5;
 	for(size_t i=0; i<size; i++){
 		Point p = rpo();
 		result.push_back(p);
@@ -91,7 +100,10 @@ COLORREF rc(){ return RGB(rand()%255, rand()%255, rand()%255); };
 // Global objects
 Segments main_Segments;
 Contour main_contour;
-COLORREF main_color = RGB(0, 0, 0); 
+COLORREF main_color = RGB(0, 0, 0);
+COLORREF BLACK = RGB(0, 0, 0); 
+COLORREF RED = RGB(255, 0, 0);
+COLORREF BLUE = RGB(0, 0, 255);
 Objects scene;
 
 void OpenColorPicker(HWND hwnd) {
@@ -156,7 +168,14 @@ void rotateMainContour(Direction dir);
 void scaleMainContour(Direction dir);
 void shearMainContour(Direction dir);
 void symmetryMainContour();
-bool pointInWindow(Point a){ return a.x<WINDOW_WIDTH & a.x>0 & a.y<WINDOW_HEIGHT & a.y>0};
+bool pointInDraw(Point a){ return a.x<DRAW_WIDTH & a.x>0 & a.y<DRAW_HEIGHT & a.y>0;};
+Contour sliceContour(Contour original, Contour edges);
+
+
+void OnMouseMoveDraw(HDC hdc, int x, int y){
+	SetPixel(hdc, x, y, rc());
+	
+}
 
 
 //Hints
@@ -348,6 +367,10 @@ void drawSegments(HDC hdc, Segments f, COLORREF color){
 }
 
 void drawContour(HDC hdc, Contour C, COLORREF color){
+	Contour E = {
+		(Point){0,0}, (Point){DRAW_WIDTH,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, (Point){0,DRAW_HEIGHT}, (Point){0,0}
+	};
+	//C = sliceContour(C,E); //problematic
 	Segments f = convertContourToSegments(C);
 	drawSegments(hdc, f, color);
 }
@@ -390,10 +413,10 @@ void rotateMainContour(Direction dir){
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
-		Point dif = {p.x-o.x, p.y-o.y};
+		Point d = dif(o,p);
 		
-		p.x = dif.x*cos(rotSpeed) + ((dir == RIGHT)?-1:1)*dif.y*sin(rotSpeed) + o.x;
-		p.y = ((dir == RIGHT)?1:-1)*dif.x*sin(rotSpeed) + dif.y*cos(rotSpeed) + o.y;
+		p.x = d.x*cos(rotSpeed) + ((dir == RIGHT)?-1:1)*d.y*sin(rotSpeed) + o.x;
+		p.y = ((dir == RIGHT)?1:-1)*d.x*sin(rotSpeed) + d.y*cos(rotSpeed) + o.y;
 	};
 }
 
@@ -402,12 +425,12 @@ void scaleMainContour(Direction dir){
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
-		Point dif = {p.x-o.x, p.y-o.y};
+		Point d = dif(o,p);
 		switch(dir){
-			case UP: p.y = dif.y*scaleSpeed + o.y; break;
-			case DOWN: p.y = dif.y/scaleSpeed+ o.y;break;
-			case LEFT: p.x = dif.x/scaleSpeed+ o.x;break;
-			case RIGHT: p.x = dif.x*scaleSpeed+ o.x;break;
+			case UP: p.y = d.y*scaleSpeed + o.y; break;
+			case DOWN: p.y = d.y/scaleSpeed+ o.y;break;
+			case LEFT: p.x = d.x/scaleSpeed+ o.x;break;
+			case RIGHT: p.x = d.x*scaleSpeed+ o.x;break;
 		}
 	}
 }
@@ -417,12 +440,12 @@ void shearMainContour(Direction dir){
 	Point& o = main_contour[0];
 	for (int i=1; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
-		Point dif = {p.x-o.x, p.y-o.y};
+		Point d = dif(o,p);
 		switch(dir){
-			case UP: p.y = p.y - sheerSpeed*dif.x; break;
-			case DOWN: p.y = p.y + sheerSpeed*dif.x; break;
-			case LEFT: p.x = p.x + sheerSpeed*dif.y; break;
-			case RIGHT: p.x = p.x - sheerSpeed*dif.y; break;
+			case UP: p.y = p.y - sheerSpeed*d.x; break;
+			case DOWN: p.y = p.y + sheerSpeed*d.x; break;
+			case LEFT: p.x = p.x + sheerSpeed*d.y; break;
+			case RIGHT: p.x = p.x - sheerSpeed*d.y; break;
 		}
 	}
 }
@@ -430,8 +453,8 @@ void shearMainContour(Direction dir){
 void symmetryMainContour(){
 	Point A = main_contour[0];
 	Point B = main_contour[1];
-	Point dif = {B.x-A.x, B.y-A.y};
-	float u = dif.x, v = dif.y;
+	Point d = dif(A,B);
+	float u = d.x, v = d.y;
 	float a = v, b = -u, c = -a*B.x - b*B.y;
 	for (int i=2; i<main_contour.size(); i++) {
 		Point& p = main_contour[i];
@@ -442,5 +465,45 @@ void symmetryMainContour(){
 	}
 }
 
+Contour sliceContour(Contour original, Contour edges){
+	Contour result;
+	
+	int size = original.size();
+	if(size==2){
+		
+		Point A = original[0];
+		Point B = original[1];
+		Point d = dif(A,B);
+		bool inside = pointInDraw(A) & pointInDraw(B);
+		if(inside == FALSE) return result;
+		float tl=0, tu=1;
+		int edgesCount = edges.size();
+		for (int i=0; i < edgesCount-1; i++){
+			Point normal = orthoVector(edges[i], edges[i+1]);
+			float dn = scalarProduct(d, normal), wn = scalarProduct(dif(edges[i],A), normal);
+			if(dn!=0){
+				float t = -wn / dn;
+				if(dn>0 & t<=1){
+					tl=std::max(t,tl);
+				}
+				if(dn<0 & t>=0){
+					tu=std::min(t,tu);
+				}
+			}
+		}
+		if(tl<tu){
+			Point p1 = A, p2 = B;
+			p1.x += d.x*tl;
+			p1.y += d.y*tl;
+			
+			p2.x += d.x*tu;
+			p2.y += d.y*tu;
+		}
+		
+	} else {
+		
+	}
+	return result;
+}
 
 #endif // PICASSO_H_INCLUDED

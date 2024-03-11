@@ -5,6 +5,7 @@
 //API
 #include <windows.h>
 #include <commdlg.h> //colorpicker, doesn't work
+#include <WindowsX.h>
 
 //Frequently used
 #include <stdio.h>
@@ -74,7 +75,7 @@ int WINAPI WinMain(
 
         // Position and size
         //CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        20,20,WINDOW_HEIGHT,WINDOW_WIDTH,
+        20,20,WINDOW_WIDTH,WINDOW_HEIGHT,
 
         NULL,       // Parent window    
         NULL,       // Menu
@@ -99,7 +100,7 @@ int WINAPI WinMain(
 	ShowWindow(hwnd, nCmdShow);
 	// Segment for setup
 	srand(time(NULL));
-	main_contour = rcont();
+	main_contour = rcont(3);
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
@@ -119,6 +120,8 @@ int WINAPI WinMain(
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int mouseX,mouseY;
+	//HDC scrDC;
+	
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -142,9 +145,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//Figure f1 = rf();
 			//drawFigure(hdc, f1, rc()); 
 			
-			//HDC screenDC = GetDC(NULL);
-			drawContour(hdc, main_contour, rc()); //main_color
-			//ReleaseDC(NULL, screenDC);
+			HDC screenDC = GetDC(NULL);
+			RECT fullscreen;
+			drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
+			ReleaseDC(NULL, screenDC);
 			
 			//take shape
 			//transform //i don't have to remember original state, so this can be moved away
@@ -165,9 +169,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             	case INPUT_POINTS:
             		break;
 			}
-            
-            
             break;
+            
+    case WM_MOUSEMOVE: 
+    		{	
+    		//HDC scrDC = GetDC(NULL);
+    		//OnMouseMoveDraw(scrDC, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    		//ReleaseDC(NULL, scrDC);
+    		}
+    		break;
             
     case WM_RBUTTONDOWN:
             mouseX = LOWORD(lParam);
