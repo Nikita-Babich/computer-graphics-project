@@ -362,8 +362,8 @@ void drawContour(HDC hdc, Contour C, COLORREF color){
 	Contour E = {
 		(Point){0,0}, 
 		(Point){DRAW_WIDTH,0}, 
-		(Point){DRAW_WIDTH,DRAW_WIDTH}, 
-		(Point){0,DRAW_WIDTH}, 
+		(Point){DRAW_WIDTH,DRAW_HEIGHT}, 
+		(Point){0,DRAW_HEIGHT}, 
 		(Point){0,0}
 	};
 	C = sliceContour(C,E); //problematic
