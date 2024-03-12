@@ -149,7 +149,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//HDC screenDC = GetDC(NULL);
 			//RECT fullscreen;
-			drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
+			//drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
+			Segment s = rs();
+			Segment s2 = orthoSegment(s);
+			drawSegment(hdc, s, BLUE);
+			
+			drawSegment(hdc, s2, RED);
 			//ReleaseDC(NULL, screenDC);
 			
 			//take shape
