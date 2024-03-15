@@ -9,8 +9,8 @@
 
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 800
-#define DRAW_HEIGHT 400
-#define DRAW_WIDTH 400
+#define DRAW_HEIGHT 600
+#define DRAW_WIDTH 600
 
 
 
@@ -101,12 +101,21 @@ Segments main_Segments;
 Contour main_contour;
 Objects scene; //for future if needed to drw separte objects
 
+
+
 COLORREF main_color = RGB(0, 0, 0);
 COLORREF BLACK = RGB(0, 0, 0); 
 COLORREF RED = RGB(255, 0, 0);
 COLORREF BLUE = RGB(0, 0, 255);
 COLORREF GREEN = RGB(0, 255, 0);
 COLORREF PINK = RGB(255, 0, 255);
+
+//circles
+Pixel circle11 = rpi();
+Pixel circle12 = rpi();
+Pixel circle21 = rpi();
+Pixel circle22 = rpi();
+COLORREF circle_color = RGB(40, 255, 100);
 
 void OpenColorPicker(HWND hwnd) {
 	printf("\n Color picker start %d", main_color);
@@ -131,7 +140,7 @@ enum LineMethod {
     DDA2 = 2,
     Bresenham = 3
 };
-enum LineMethod selectedMethod = DDA1;
+enum LineMethod selectedMethod = Bresenham;
 
 enum SliceMethod {
     CyrusBeck = 1,
@@ -371,7 +380,7 @@ void drawContour(HDC hdc, Contour C, COLORREF color){
 		(Point){0,DRAW_HEIGHT}, 
 		(Point){0,0}
 	};
-	//C = sliceContour(C,E); //problematic
+	C = sliceContour(C,E); //problematic
 	Segments f = convertContourToSegments(C);
 	drawSegments(hdc, f, color);
 }
@@ -459,53 +468,80 @@ void symmetryMainContour(){
 		p.y = old.y - 2*b * param;
 	}
 }
-//
-//Contour sliceContour(Contour original, Contour edges){
-//	Contour result;
-//	
-//	int size = original.size();
-//	Segments E = convertContourToSegments(edges);
-//	
-//	if(size==2){
-//		
-//		Point A = original[0];
-//		Point B = original[1];
-//		Point d = dif(A,B);
-//		
+
+Contour sliceContour(Contour original, Contour edges){
+	Contour result;
+	
+	int size = original.size();
+	Segments E = convertContourToSegments(edges);
+	
+	if(size==2){
+		{
+		
+		Point A = original[0];
+		Point B = original[1];
+		Point d = dif(A,B);
+		
 //		float tl=0, tu=1;
 //		for (const Segment& segment : E) {
 //			
 //		};
-//		//bool inside = pointInDraw(A) | pointInDraw(B);
-//		//if(inside == FALSE) return result;
-//		float tl=0, tu=1;
-//		int edgesCount = edges.size();
-//		for (int i=0; i < edgesCount-1; i++){
-//			Point normal = orthoVector(edges[i], edges[i+1]);
-//			float dn = scalarProduct(d, normal), wn = scalarProduct(dif(edges[i],A), normal);
-//			if(dn!=0){
-//				float t = -wn / dn;
-//				if(dn>0 & t<=1){
-//					tl=std::max(t,tl);
-//				}
-//				if(dn<0 & t>=0){
-//					tu=std::min(t,tu);
-//				}
-//			}
-//		}
-//		if(tl<tu){
-//			A.x += d.x*tl;
-//			A.y += d.y*tl;
-//			
-//			B.x += d.x*tu;
-//			B.y += d.y*tu;
-//		}
-//		result.push_back(B);
-//		result.push_back(A);
-//	} else {
-//		return original;
-//	}
-//	return result;
-//}
+		//bool inside = pointInDraw(A) | pointInDraw(B);
+		//if(inside == FALSE) return result;
+		float tl=0, tu=1;
+		int edgesCount = edges.size();
+		for (int i=0; i < edgesCount-1; i++){
+			Point normal = orthoVector(edges[i], edges[i+1]);
+			float dn = scalarProduct(d, normal), wn = scalarProduct(dif(edges[i],A), normal);
+			if(dn!=0){
+				float t = -wn / dn;
+				if(dn>0 & t<=1){
+					tl=std::max(t,tl);
+				}
+				if(dn<0 & t>=0){
+					tu=std::min(t,tu);
+				}
+			}
+		}
+		if(tl<tu){
+			A.x += d.x*tl;
+			A.y += d.y*tl;
+			
+			B.x += d.x*tu;
+			B.y += d.y*tu;
+			
+			result.push_back(B);
+			result.push_back(A);
+		}
+		}
+		
+	} else if (size == 1){
+		
+	} else {
+		Contour V = original;
+		V.pop_back();
+		Point S = V[size];
+		float xmin = 50;
+		for(int i=0; i<size; i++){
+			if(V[i].x > xmin){
+				if(S.x > xmin){
+					result.push_back(V[i]);
+				} else {
+					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+					result.push_back(P);
+					result.push_back(V[i]);
+				
+				}
+			} else{
+				if(S.x >= xmin){
+					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+					result.push_back(P);
+				}
+			}
+			S = V[i];
+		}
+	}
+	return result;
+}
 
 #endif // PICASSO_H_INCLUDED

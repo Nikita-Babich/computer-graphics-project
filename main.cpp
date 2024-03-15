@@ -101,7 +101,7 @@ int WINAPI WinMain(
 	ShowWindow(hwnd, nCmdShow);
 	// Segment for setup
 	srand(time(NULL));
-	main_contour = rcont(2);
+	main_contour = rcont(5);
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
@@ -140,7 +140,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			
 			//selectedMethod = Bresenham;
-			//br_circle(hdc, rpi(), rpi(), rc() );
+			
+			br_circle(hdc, circle11, circle12, circle_color );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			
@@ -149,12 +150,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//HDC screenDC = GetDC(NULL);
 			//RECT fullscreen;
-			//drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
-			Segment s = rs();
-			Segment s2 = orthoSegment(s);
-			drawSegment(hdc, s, BLUE);
+			drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
 			
-			drawSegment(hdc, s2, RED);
+			//Orthovector test
+//			Segment s = rs();
+//			Segment s2 = orthoSegment(s);
+//			drawSegment(hdc, s, BLUE);
+//			drawSegment(hdc, s2, RED);
+			
 			//ReleaseDC(NULL, screenDC);
 			
 			//take shape
@@ -236,7 +239,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case 'F': shearMainContour(LEFT);  break;
 			
 			case 'X': symmetryMainContour();  break;
-	
+			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); break;
 			default: 
 				// Process other non-character keystrokes. 
 				break; 
