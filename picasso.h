@@ -473,7 +473,6 @@ Contour sliceContour(Contour original, Contour edges){
 	Contour result;
 	
 	int size = original.size();
-	Segments E = convertContourToSegments(edges);
 	
 	if(size==2){
 		{
@@ -520,8 +519,9 @@ Contour sliceContour(Contour original, Contour edges){
 	} else {
 		Contour V = original;
 		V.pop_back();
+		size = V.size();
 		Point S = V[size];
-		float xmin = 50;
+		float xmin = 0;
 		for(int i=0; i<size; i++){
 			if(V[i].x > xmin){
 				if(S.x > xmin){

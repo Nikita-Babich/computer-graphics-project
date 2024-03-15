@@ -101,7 +101,7 @@ int WINAPI WinMain(
 	ShowWindow(hwnd, nCmdShow);
 	// Segment for setup
 	srand(time(NULL));
-	main_contour = rcont(5);
+	main_contour = rcont(3);
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
