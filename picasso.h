@@ -117,11 +117,13 @@ Pixel circle21 = rpi();
 Pixel circle22 = rpi();
 COLORREF circle_color = RGB(40, 255, 100);
 
+CHOOSECOLOR cc = {0};
 void OpenColorPicker(HWND hwnd) {
 	printf("\n Color picker start %d", main_color);
-    CHOOSECOLOR cc;
-    ZeroMemory(&cc, sizeof(CHOOSECOLOR));
-    cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems and runtime crashes
+    //CHOOSECOLOR cc;
+    //ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+    cc = {0};
+    //cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems and runtime crashes
     cc.hwndOwner = hwnd;
     cc.lpCustColors = NULL;
     cc.rgbResult = main_color;
@@ -155,10 +157,12 @@ enum Direction {
 };
 
 enum progState {
-    INPUT_POINTS = 1,
-    INPUT_COMPLETE = 2
+    INPUT_CIRCLES = 0,
+    INPUT_CONTOUR = 1,
+    INPUT_CURVE = 2
+    
 };
-enum progState PROGRAM_STATE = INPUT_POINTS;
+enum progState PROGRAM_STATE = INPUT_CIRCLES;
 
 
 //Declarations of drawing
@@ -374,15 +378,30 @@ void drawSegments(HDC hdc, Segments f, COLORREF color){
 }
 void drawContour(HDC hdc, Contour C, COLORREF color){
 	Contour E = {
-		(Point){0,0}, 
-		(Point){DRAW_WIDTH,0}, 
-		(Point){DRAW_WIDTH,DRAW_HEIGHT}, 
-		(Point){0,DRAW_HEIGHT}, 
-		(Point){0,0}
-	};
-	C = sliceContour(C,E); //problematic
-	Segments f = convertContourToSegments(C);
-	drawSegments(hdc, f, color);
+				(Point){0,0}, 
+				(Point){DRAW_WIDTH,0}, 
+				(Point){DRAW_WIDTH,DRAW_HEIGHT}, 
+				(Point){0,DRAW_HEIGHT}, 
+				(Point){0,0}
+			};
+	Segments f;	
+	int size = C.size();	
+			
+	switch(PROGRAM_STATE){
+    	case INPUT_CIRCLES:
+    		for(int i=0; i<size-1; i+=2){
+    			br_circle(hdc, convertPointToPixel(C[i]), convertPointToPixel(C[i+1]), main_color );
+			}
+    		break;
+    	case INPUT_CONTOUR:
+			C = sliceContour(C,E); //problematic
+			f = convertContourToSegments(C);
+			drawSegments(hdc, f, color);
+    		break;
+    	case INPUT_CURVE:
+    		break;
+	}
+	
 }
 void redrawAll(HWND hwnd) {
     // Invalidate the entire client area

@@ -101,7 +101,7 @@ int WINAPI WinMain(
 	ShowWindow(hwnd, nCmdShow);
 	// Segment for setup
 	srand(time(NULL));
-	main_contour = rcont(3);
+	main_contour = rcont(6);
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
@@ -135,13 +135,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
 			
-			drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+			//drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 			
 			//selectedMethod = Bresenham;
 			
-			br_circle(hdc, circle11, circle12, circle_color );
+			//br_circle(hdc, circle11, circle12, circle_color );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			//br_circle(hdc, rpi(), rpi(), rc() );
 			
@@ -174,18 +174,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             mouseX = LOWORD(lParam);
             mouseY = HIWORD(lParam);
             printf("\n Left mouse click \t %d %d ",mouseX,mouseY);
+            Point new_point;
             //add a Point to Figure
             switch(PROGRAM_STATE){
-            	case INPUT_POINTS:
+            	case INPUT_CIRCLES:
+            		new_point.x = mouseX;
+            		new_point.y = mouseY;
+            		main_contour.push_back(new_point);
+            		break;
+            	case INPUT_CONTOUR:
+            		break;
+            	case INPUT_CURVE:
             		break;
 			}
+			redrawAll(hwnd);
             break;
             
     case WM_MOUSEMOVE: 
     		{	
-    		//HDC scrDC = GetDC(NULL);
-    		//OnMouseMoveDraw(scrDC, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-    		//ReleaseDC(NULL, scrDC);
+    		
     		}
     		break;
             
@@ -194,7 +201,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             mouseY = HIWORD(lParam);
             printf("\n Right mouse click \t %d %d ",mouseX,mouseY);
             //complete shape 
-            PROGRAM_STATE = INPUT_COMPLETE;
+            //PROGRAM_STATE = INPUT_COMPLETE;
             break;
             
     case WM_KEYDOWN:
@@ -222,7 +229,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break; 
 				
 			case 'C':
-				//OpenColorPicker(hwnd);
+				//random_main_color();
+				OpenColorPicker(hwnd);
 				break;
 				
 			case 'Q': rotateMainContour(LEFT);  break;

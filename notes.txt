@@ -47,3 +47,7 @@ SetPixel(hdc, 100, 100, RGB(255, 0, 0));
             //SetPixel(hdc,50,50,RGB(50,50,50));
 			//TextOut(hdc,5, 5,greeting, len(greeting));
 			//TextOut(hdc,5, 5, greeting, 50);
+
+//HDC scrDC = GetDC(NULL);
+    		//OnMouseMoveDraw(scrDC, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+    		//ReleaseDC(NULL, scrDC);
