@@ -117,15 +117,17 @@ Pixel circle21 = rpi();
 Pixel circle22 = rpi();
 COLORREF circle_color = RGB(40, 255, 100);
 
-CHOOSECOLOR cc = {0};
+//CHOOSECOLOR cc = {0};
 void OpenColorPicker(HWND hwnd) {
 	printf("\n Color picker start %d", main_color);
-    //CHOOSECOLOR cc;
-    //ZeroMemory(&cc, sizeof(CHOOSECOLOR));
-    cc = {0};
-    //cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems and runtime crashes
+    CHOOSECOLOR cc;
+    COLORREF custColors[16] = { 0 };
+    
+    //cc = {0};
+    ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+    cc.lStructSize = sizeof(CHOOSECOLOR); //This line causes problems and runtime crashes
     cc.hwndOwner = hwnd;
-    cc.lpCustColors = NULL;
+    cc.lpCustColors = custColors;
     cc.rgbResult = main_color;
     cc.Flags = CC_FULLOPEN | CC_RGBINIT;
 
