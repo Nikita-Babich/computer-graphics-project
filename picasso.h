@@ -111,11 +111,36 @@ COLORREF GREEN = RGB(0, 255, 0);
 COLORREF PINK = RGB(255, 0, 255);
 
 //circles
-Pixel circle11 = rpi();
-Pixel circle12 = rpi();
-Pixel circle21 = rpi();
-Pixel circle22 = rpi();
-COLORREF circle_color = RGB(40, 255, 100);
+//Pixel circle11 = rpi();
+//Pixel circle12 = rpi();
+//Pixel circle21 = rpi();
+//Pixel circle22 = rpi();
+//COLORREF circle_color = RGB(40, 255, 100);
+
+// Speeding up by using buffer
+COLORREF* buffer = NULL;
+// Function to initialize buffer
+void InitializeBuffer() {
+    buffer = (COLORREF*)malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+    if (buffer == NULL) {
+        // memory allocation failure, no idea ho to handle
+    }
+    // initialize buffer to background color or any default color
+    memset(buffer, RGB(255, 255, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+}
+// Function to draw a pixel in buffer
+void DrawPixel(int x, int y, COLORREF color) {
+    if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT) {
+        buffer[y * WINDOW_WIDTH + x] = color;
+    }
+}
+// Function to transfer buffer to screen
+void UpdateScreen(HDC hdc) {
+    if (buffer != NULL) {
+        SetDIBitsToDevice(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, NULL, 0);
+    }
+}
+
 
 //CHOOSECOLOR cc = {0};
 void OpenColorPicker(HWND hwnd) {
