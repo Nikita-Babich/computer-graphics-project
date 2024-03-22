@@ -9,8 +9,8 @@
 
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 800
-#define DRAW_HEIGHT 600
-#define DRAW_WIDTH 600
+#define DRAW_HEIGHT 400
+#define DRAW_WIDTH 400
 
 #define UPDATE {\
 			PAINTSTRUCT ps;\
@@ -173,7 +173,7 @@ void UpdateScreen(HDC hdc) {
 
 
 //CHOOSECOLOR cc = {0};
-void OpenColorPicker(HWND hwnd) {
+void OpenColorPicker(HWND hwnd, int which) {
 	printf("\n Color picker start %d", main_color);
     CHOOSECOLOR cc;
     COLORREF custColors[16] = { 0 };
@@ -185,13 +185,15 @@ void OpenColorPicker(HWND hwnd) {
     cc.lpCustColors = custColors;
     cc.rgbResult = main_color;
     cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-
+	
+	COLORREF output;
     if (ChooseColor(&cc)) {
         // User selected a color
         //main_color = cc.rgbResult;
-        main_color = RGB(GetBValue(cc.rgbResult), GetGValue(cc.rgbResult), GetRValue(cc.rgbResult)); //solving reverse color issue
+        output = RGB(GetBValue(cc.rgbResult), GetGValue(cc.rgbResult), GetRValue(cc.rgbResult)); //solving reverse color issue
     }
-    printf("\n Color picker end %x", main_color);
+    (which)?(main_color = output):(background_color = output);
+    printf("\n Color picker end %x", output);
 }
 
 // enum controllers
@@ -472,8 +474,9 @@ void drawContour(  Contour C, COLORREF color){
 			}
     		break;
     	case MODE_CONTOUR:
-			//C = sliceContour(C,E); //problematic
+			C = sliceContour(C,E); //problematic
 			f = convertContourToSegments(C);
+			drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			drawSegments(  f, main_color);
     		break;
     	case MODE_CONTOUR_FILLED:

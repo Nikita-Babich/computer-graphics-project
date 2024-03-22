@@ -144,25 +144,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
         	InitializeBuffer();
-			drawContour( main_contour, BLUE); //main_color //hdc //rc() 
+        	
+			drawContour( main_contour, BLUE); 
 			
 			UPDATE;
-        	
-			//drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
-            // All painting occurs here, between BeginPaint and EndPaint.
-			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
-			
-			//selectedMethod = Bresenham;
-			
-			//br_circle(hdc, circle11, circle12, circle_color );
-			//br_circle(hdc, rpi(), rpi(), rc() );
-			//br_circle(hdc, rpi(), rpi(), rc() );
-			
-			//Figure f1 = rf();
-			//drawFigure(hdc, f1, rc()); 
-			
-			//HDC screenDC = GetDC(NULL);
-			//ReleaseDC(NULL, screenDC);
         }
         return 0;
         
@@ -179,16 +164,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             		main_contour.push_back(new_point);
             		break;
             	case MODE_CONTOUR:
+            		new_point.x = mouseX;
+            		new_point.y = mouseY;
+            		main_contour.push_back(new_point);
             		break;
             	case MODE_CONTOUR_FILLED:
             		break;
             	case MODE_CURVE:
             		break;
 			}
-			//redrawAll(hwnd);
-			//UpdateScreen(hdc);
 			InvalidateRect(hwnd, NULL, FALSE);
-			//UPDATE;
             break;
             
     case WM_MOUSEMOVE: 
@@ -198,11 +183,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     		break;
             
     case WM_RBUTTONDOWN:
-            mouseX = LOWORD(lParam);
-            mouseY = HIWORD(lParam);
-            printf("\n Right mouse click \t %d %d ",mouseX,mouseY);
-            //complete shape 
-            //PROGRAM_STATE = INPUT_COMPLETE;
+    		main_contour.clear();
+			InvalidateRect(hwnd, NULL, FALSE);
             break;
             
     case WM_KEYDOWN:
@@ -231,7 +213,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				
 			case 'C':
 				//random_main_color();
-				OpenColorPicker(hwnd);
+				OpenColorPicker(hwnd,0);
+				break;
+			case 'V':
+				//random_main_color();
+				OpenColorPicker(hwnd,1);
 				break;
 				
 			case 'Q': rotateMainContour(LEFT);  break;
@@ -248,16 +234,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case 'F': shearMainContour(LEFT);  break;
 			
 			case 'X': symmetryMainContour();  break;
-			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); break;
+			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); printf("\nmethod %d", selectedMethod); break;
 			case 'M': PROGRAM_MODE = static_cast<progState>((PROGRAM_MODE + 1)%4); break;
 			default: 
 				// Process other non-character keystrokes. 
 				break; 
         }
-        //redrawAll(hwnd);
-        //UpdateScreen(hdc);
         InvalidateRect(hwnd, NULL, FALSE);
-        //UPDATE;
         break;
 
     case WM_KEYUP:
