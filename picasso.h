@@ -129,7 +129,8 @@ void InitializeBuffer() {
         // memory allocation failure, no idea ho to handle
     }
     // initialize buffer to background color or any default color
-    memset(buffer, RGB(255, 255, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+    memset(buffer, RGB(100, 100, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+    printf( "\n buffer has %d %d %d", buffer[0], buffer[1], buffer[2]);
 }
 // Function to draw a pixel in buffer
 void DrawPixel(int x, int y, COLORREF color) {
