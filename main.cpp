@@ -100,7 +100,9 @@ int WINAPI WinMain(
 	// nCmdShow: the fourth parameter from WinMain
 	
 	// Segment for setup
+	InitializeBitmapInfo(&bmi);
 	InitializeBuffer();
+	
 	ShowWindow(hwnd, nCmdShow);
 	srand(time(NULL));
 	main_contour = rcont(6);
@@ -140,7 +142,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         {
-			drawContour( main_contour, BLUE); //main_color //hdc //rc()
+			drawContour( main_contour, BLUE); //main_color //hdc //rc() 
 			
 			UPDATE;
         	
@@ -181,6 +183,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			//redrawAll(hwnd);
 			//UpdateScreen(hdc);
+			InvalidateRect(hwnd, NULL, FALSE);
 			UPDATE;
             break;
             

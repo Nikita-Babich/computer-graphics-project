@@ -147,7 +147,7 @@ void InitializeBuffer() {
         // Iterate over each column in the current row
         for (int j = 0; j < WINDOW_WIDTH; j++) {
             // Set the color of the current pixel in the buffer
-            buffer[i][j] = RGB(255, 100, 255); // or any other desired color
+            buffer[i][j] = RGB(255, 255, 255); // or any other desired color
         }
     }
     // initialize buffer to background color or any default color
@@ -164,7 +164,7 @@ void DrawPixel(int x, int y, COLORREF color) {
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
     	printf("\n buffer exists, update called ");
-    	InitializeBitmapInfo(&bmi);
+    	
         SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, DIB_RGB_COLORS);
     }
 }
