@@ -13,6 +13,8 @@
 #define DRAW_WIDTH 600
 
 #define UPDATE {\
+			PAINTSTRUCT ps;\
+    		HDC hdc;\
 			hdc = BeginPaint(hwnd, &ps); \
         	UpdateScreen(hdc);\
         	EndPaint(hwnd, &ps);};
@@ -121,28 +123,49 @@ COLORREF PINK = RGB(255, 0, 255);
 //COLORREF circle_color = RGB(40, 255, 100);
 
 // Speeding up by using buffer
-COLORREF* buffer = NULL;
+
+
+BITMAPINFO bmi;
+void InitializeBitmapInfo(BITMAPINFO* bmi) {
+    ZeroMemory(bmi, sizeof(BITMAPINFO));
+    bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi->bmiHeader.biWidth = WINDOW_WIDTH;
+    bmi->bmiHeader.biHeight = -WINDOW_HEIGHT;  // Use negative height for top-down bitmap
+    bmi->bmiHeader.biPlanes = 1;
+    bmi->bmiHeader.biBitCount = 32;  // Assuming you are using 32-bit color depth (COLORREF)
+    bmi->bmiHeader.biCompression = BI_RGB;
+};
+
+COLORREF buffer[WINDOW_HEIGHT][WINDOW_WIDTH];
 // Function to initialize buffer
 void InitializeBuffer() {
-    buffer = (COLORREF*)malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+    //buffer = (COLORREF*)malloc(WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
     if (buffer == NULL) {
         // memory allocation failure, no idea ho to handle
     }
+    for (int i = 0; i < WINDOW_HEIGHT; i++) {
+        // Iterate over each column in the current row
+        for (int j = 0; j < WINDOW_WIDTH; j++) {
+            // Set the color of the current pixel in the buffer
+            buffer[i][j] = RGB(255, 100, 255); // or any other desired color
+        }
+    }
     // initialize buffer to background color or any default color
-    memset(buffer, RGB(100, 100, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
+    //memset(buffer, RGB(255, 100, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
     printf( "\n buffer has %d %d %d", buffer[0], buffer[1], buffer[2]);
 }
 // Function to draw a pixel in buffer
 void DrawPixel(int x, int y, COLORREF color) {
     if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT) {
-        buffer[y * WINDOW_WIDTH + x] = color;
+        buffer[y][x]= color;
     }
 }
 // Function to transfer buffer to screen
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
     	printf("\n buffer exists, update called ");
-        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, NULL, 0);
+    	InitializeBitmapInfo(&bmi);
+        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, DIB_RGB_COLORS);
     }
 }
 

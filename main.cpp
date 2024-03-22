@@ -105,9 +105,9 @@ int WINAPI WinMain(
 	srand(time(NULL));
 	main_contour = rcont(6);
 	
-	PAINTSTRUCT ps;
-    HDC hdc;
-	UPDATE;
+	//PAINTSTRUCT ps;
+    //HDC hdc;
+	//UPDATE;
 	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
@@ -143,9 +143,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			drawContour( main_contour, BLUE); //main_color //hdc //rc()
 			
 			UPDATE;
-        	//hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
-        	//UpdateScreen(hdc);
-        	//EndPaint(hwnd, &ps);
         	
 			//drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
             // All painting occurs here, between BeginPaint and EndPaint.
