@@ -130,8 +130,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int mouseX,mouseY;
 	//HDC scrDC;
-	PAINTSTRUCT ps;
-    HDC hdc;
+	//PAINTSTRUCT ps;
+    //HDC hdc;
     
     switch (uMsg)
     {
@@ -142,6 +142,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         {
+        	InitializeBuffer();
 			drawContour( main_contour, BLUE); //main_color //hdc //rc() 
 			
 			UPDATE;
@@ -184,7 +185,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//redrawAll(hwnd);
 			//UpdateScreen(hdc);
 			InvalidateRect(hwnd, NULL, FALSE);
-			UPDATE;
+			//UPDATE;
             break;
             
     case WM_MOUSEMOVE: 
@@ -251,7 +252,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         //redrawAll(hwnd);
         //UpdateScreen(hdc);
-        UPDATE;
+        InvalidateRect(hwnd, NULL, FALSE);
+        //UPDATE;
         break;
 
     case WM_KEYUP:
