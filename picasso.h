@@ -471,10 +471,26 @@ float F0(float t){return 2*t*t*t - 3*t*t + 1;}
 float F1(float t){return -2*t*t*t + 3*t*t;}
 float F2(float t){return t*t*t - 2*t*t + t;}
 float F3(float t){return t*t*t - t*t;}
+Point tv(Contour c, int i){ //tangent vector
+	Point a = c[i];
+	Point b = c[i+1];
+	return (Point){b.x-a.x, b.y-a.y	};
+}
 void drawHermit(Contour C){
-	
-	float deltat = 0.1;
-	
+	int n = C.size()/2;
+	//Contour points;
+	//Contour tangents;
+	Segment s;
+	float deltat = 0.01;
+	float t;
+	for(int i = 1; i<=n; i++){
+		s.start = C[(i-1)*2];
+		t = deltat;
+		Point Q1 = 
+			(Point){
+				C[(i-1)*2].x*F0(t) + C[i*2].x*F1(t) + 
+			}
+	}
 }
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
