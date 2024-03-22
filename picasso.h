@@ -61,12 +61,14 @@ Segments convertContourToSegments(Contour c){
 	int size = c.size();
 	Segments result;
 	Segment segment;
-	for (int i=0; i<size-1; i++) {
-		segment = {};
-		segment.start = c[i];
-		segment.finish = c[i+1];
-		result.push_back(segment);
-	};
+	if (size>=2){
+		for (int i=0; i<size-1; i++) {
+			segment = {};
+			segment.start = c[i];
+			segment.finish = c[i+1];
+			result.push_back(segment);
+		};
+	}
 	if(size >=3){
 		segment = {};
 		segment.start = c[size-1];
