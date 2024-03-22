@@ -105,6 +105,10 @@ int WINAPI WinMain(
 	srand(time(NULL));
 	main_contour = rcont(6);
 	
+	PAINTSTRUCT ps;
+    HDC hdc;
+	UPDATE;
+	
 	UpdateWindow(hwnd);
 	printf("\nWindow is running");
 	
@@ -124,7 +128,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int mouseX,mouseY;
 	//HDC scrDC;
-	
+	PAINTSTRUCT ps;
+    HDC hdc;
+    
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -134,12 +140,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         {
-			PAINTSTRUCT ps;
-        	HDC hdc;
-        	hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
-        	drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
-        	UpdateScreen(hdc);
-        	EndPaint(hwnd, &ps);
+			drawContour( main_contour, BLUE); //main_color //hdc //rc()
+			
+			UPDATE;
+        	//hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
+        	//UpdateScreen(hdc);
+        	//EndPaint(hwnd, &ps);
         	
 			//drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
             // All painting occurs here, between BeginPaint and EndPaint.
@@ -156,7 +162,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			//HDC screenDC = GetDC(NULL);
 			//ReleaseDC(NULL, screenDC);
-			
         }
         return 0;
         
@@ -177,7 +182,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             	case INPUT_CURVE:
             		break;
 			}
-			redrawAll(hwnd);
+			//redrawAll(hwnd);
+			//UpdateScreen(hdc);
+			UPDATE;
             break;
             
     case WM_MOUSEMOVE: 
@@ -242,7 +249,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				// Process other non-character keystrokes. 
 				break; 
         }
-        redrawAll(hwnd);
+        //redrawAll(hwnd);
+        //UpdateScreen(hdc);
+        UPDATE;
         break;
 
     case WM_KEYUP:

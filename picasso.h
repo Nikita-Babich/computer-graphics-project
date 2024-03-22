@@ -12,7 +12,10 @@
 #define DRAW_HEIGHT 600
 #define DRAW_WIDTH 600
 
-
+#define UPDATE {\
+			hdc = BeginPaint(hwnd, &ps); \
+        	UpdateScreen(hdc);\
+        	EndPaint(hwnd, &ps);};
 
 typedef struct {
     int x;          // X-coordinate
@@ -137,7 +140,8 @@ void DrawPixel(int x, int y, COLORREF color) {
 // Function to transfer buffer to screen
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
-        SetDIBitsToDevice(hdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, NULL, 0);
+    	printf("\n buffer exists, update called ");
+        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, NULL, 0);
     }
 }
 
@@ -193,16 +197,16 @@ enum progState PROGRAM_STATE = INPUT_CIRCLES;
 
 
 //Declarations of drawing
-void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color);
-void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color);
-void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color);
-void br(HDC hdc, Pixel start, Pixel end, COLORREF color);
-void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color);
-void drawSegment(HDC hdc, Segment s, COLORREF color){ drawLine(hdc, s.start, s.finish, color); };
-void drawSegments(HDC hdc, Segments f, COLORREF color);
-void drawContour(HDC hdc, Contour C, COLORREF color);
-void drawRect(HDC hdc,Point A, Point B, COLORREF color);
-void redrawAll();
+void drawLine(  Point start_float, Point end_float, COLORREF color);
+void dda1(  Pixel start, Pixel end, COLORREF color);
+void dda2(  Pixel start, Pixel end, COLORREF color);
+void br(  Pixel start, Pixel end, COLORREF color);
+void br_circle(  Pixel start, Pixel end, COLORREF color);
+void drawSegment(  Segment s, COLORREF color){ drawLine(  s.start, s.finish, color); };
+void drawSegments(  Segments f, COLORREF color);
+void drawContour(  Contour C, COLORREF color);
+void drawRect( Point A, Point B, COLORREF color);
+//void redrawAll();
 
 //Modifications
 void translatePoint(Direction dir, Point& p);
@@ -215,30 +219,30 @@ bool pointInDraw(Point a){ return a.x<DRAW_WIDTH & a.x>0 & a.y<DRAW_HEIGHT & a.y
 Contour sliceContour(Contour original, Contour edges);
 
 
-void OnMouseMoveDraw(HDC hdc, int x, int y){
+void OnMouseMoveDraw( int x, int y){
 	//SetPixel(hdc, x, y, rc());
 	DrawPixel(x,y, BLACK);
 }
 
 
 //Hints
-//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
+//SetPixel(  100, 100, RGB(255, 0, 0));
 
 //Implementations of drawing
-void drawLine(HDC hdc, Point start_float, Point end_float, COLORREF color){
+void drawLine( Point start_float, Point end_float, COLORREF color){
 	Pixel start = convertPointToPixel(start_float);
 	Pixel end = convertPointToPixel(end_float);
 	if (selectedMethod == DDA1) {
-		dda1(hdc, start, end, color);
+		dda1(  start, end, color);
 	}
 	else if (selectedMethod == DDA2) {
-		dda2(hdc, start, end, color);
+		dda2(  start, end, color);
 	}
 	else if (selectedMethod == Bresenham) {
-		br(hdc, start, end, color);
+		br(  start, end, color);
 	}
 }
-void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
+void dda1( Pixel start, Pixel end, COLORREF color){
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
 	int DX = x2 - x1;
@@ -259,7 +263,7 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		minx = (x1 < x2) ? x1 : x2;
 		maxx = (x1 >= x2) ? x1 : x2;
 		for (int x = minx; x <= maxx; x++) {
-			//SetPixel(hdc, x, y1, color);
+			//SetPixel(  x, y1, color);
 			DrawPixel(x, y1, color);
 		}
 		return;
@@ -282,14 +286,14 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		float x = static_cast<float>(minx);
 		m = static_cast<float>(DX) / static_cast<float>(DY);
 		for (int y = miny; y <= maxy; y++) {
-			//SetPixel(hdc, static_cast<int>(x), y, color);
+			//SetPixel(  static_cast<int>(x), y, color);
 			DrawPixel(static_cast<int>(x), y, color);
 			x += m;
 		}
 	}
 	return;
 }
-void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+void dda2( Pixel start, Pixel end, COLORREF color) {
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
 	int DX = x2 - x1;
@@ -311,7 +315,7 @@ void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		i++;
 	}
 };
-void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+void br( Pixel start, Pixel end, COLORREF color) {
 	int x1 = start.x; int y1 = start.y;
 	int x2 = end.x; int y2 = end.y;
 	int DX, DY;
@@ -328,7 +332,7 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		k1 = 2 * DY; k2 = k1 + 2 * DX * ((DY > 0) ? -1 : 1);
 		p = k1 - DX;
 		x = x1; y = y1;
-		//SetPixel(hdc, x, y, color);
+		//SetPixel(  x, y, color);
 		DrawPixel(x, y, color);
 		while (x < x2) {
 			x++;
@@ -354,7 +358,7 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		k1 = 2 * DX; k2 = k1 + 2 * DY * ((DX > 0) ? -1 : 1);
 		p = k1 - DY;
 		x = x1; y = y1;
-		//SetPixel(hdc, x, y, color);
+		//SetPixel(  x, y, color);
 		DrawPixel(x, y, color);
 		while (y < y2) {
 			y++;
@@ -371,7 +375,7 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		}
 	}
 };
-void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
+void br_circle(  Pixel start, Pixel end, COLORREF color) {
 	int xc = start.x;
 	int yc = start.y;
 	int ex = end.x;
@@ -387,7 +391,7 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		//6    3
 		//7    2
 		//  81
-//		SetPixel(hdc, xc + x, yc  - y, color); //1
+//		SetPixel(  xc + x, yc  - y, color); //1
 //		SetPixel(hdc, xc - x, yc  - y, color); //8
 //		SetPixel(hdc, xc  - y, yc - x, color); //3
 //		SetPixel(hdc, xc  - y, yc + x, color); //2
@@ -417,12 +421,12 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		x++;
 	}
 }
-void drawSegments(HDC hdc, Segments f, COLORREF color){
+void drawSegments(  Segments f, COLORREF color){
 	for (const Segment& segment : f) {
-		drawSegment(hdc, segment, color);
+		drawSegment(  segment, color);
 	};
 }
-void drawContour(HDC hdc, Contour C, COLORREF color){
+void drawContour(  Contour C, COLORREF color){
 	Contour E = {
 				(Point){0,0}, 
 				(Point){DRAW_WIDTH,0}, 
@@ -436,33 +440,34 @@ void drawContour(HDC hdc, Contour C, COLORREF color){
 	switch(PROGRAM_STATE){
     	case INPUT_CIRCLES:
     		for(int i=0; i<size-1; i+=2){
-    			br_circle(hdc, convertPointToPixel(C[i]), convertPointToPixel(C[i+1]), main_color );
+    			br_circle(  convertPointToPixel(C[i]), convertPointToPixel(C[i+1]), main_color );
 			}
     		break;
     	case INPUT_CONTOUR:
-			C = sliceContour(C,E); //problematic
+			//C = sliceContour(C,E); //problematic
 			f = convertContourToSegments(C);
-			drawSegments(hdc, f, color);
+			drawSegments(  f, color);
     		break;
     	case INPUT_CURVE:
     		break;
 	}
 	
 }
-void redrawAll(HWND hwnd) {
-    // Invalidate the entire client area
-    InvalidateRect(hwnd, NULL, TRUE);
-
-    // Trigger a repaint message
-    UpdateWindow(hwnd);
-}
-void drawRect(HDC hdc,Point A, Point C, COLORREF color){
+//void redrawAll(HWND hwnd, HDC hdc) {
+//    // Invalidate the entire client area
+//    InvalidateRect(hwnd, NULL, TRUE);
+//
+//    // Trigger a repaint message
+//    //UpdateWindow(hwnd);
+//    UpdateScreen(hdc);
+//}
+void drawRect( Point A, Point C, COLORREF color){
 	Point B = (Point){C.x, A.y};
 	Point D = (Point){A.x, C.y};
-	drawLine(hdc, A, B, RED);
-	drawLine(hdc, B, C, GREEN);
-	drawLine(hdc, C, D, BLUE);
-	drawLine(hdc, D, A, PINK);
+	drawLine(  A, B, RED);
+	drawLine(  B, C, GREEN);
+	drawLine(  C, D, BLUE);
+	drawLine(  D, A, PINK);
 }
 
 //Implementations of modifications
