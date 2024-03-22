@@ -221,7 +221,9 @@ enum progState {
     MODE_CIRCLES = 0,
     MODE_CONTOUR = 1,
     MODE_CONTOUR_FILLED = 2,
-    MODE_CURVE = 3
+    MODE_HERMIT_CURVE = 3,
+    MODE_BEZIER_CURVE = 4,
+    MODE_COONS_CURVE = 5,
     
 };
 enum progState PROGRAM_MODE = MODE_CIRCLES;
@@ -452,10 +454,27 @@ void br_circle(  Pixel start, Pixel end, COLORREF color) {
 		x++;
 	}
 }
+void drawPluses(Contour C,COLORREF color){
+	
+	for (const Point& point : C) {
+		drawLine( (Point){point.x-2,point.y}, (Point){point.x+2,point.y}, color);
+		drawLine( (Point){point.x,point.y-2}, (Point){point.x,point.y+2}, color);
+	};
+}
 void drawSegments(  Segments f, COLORREF color){
 	for (const Segment& segment : f) {
 		drawSegment(  segment, color);
 	};
+}
+
+float F0(float t){return 2*t*t*t - 3*t*t + 1;}
+float F1(float t){return -2*t*t*t + 3*t*t;}
+float F2(float t){return t*t*t - 2*t*t + t;}
+float F3(float t){return t*t*t - t*t;}
+void drawHermit(Contour C){
+	
+	float deltat = 0.1;
+	
 }
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
@@ -483,8 +502,25 @@ void drawContour(  Contour C, COLORREF color){
 			drawSegments(  f, main_color);
     		break;
     	case MODE_CONTOUR_FILLED:
+    		C2=C;
+			//C2 = sliceContour(C,E); //problematic
+			f = convertContourToSegments(C2);
+			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+			drawSegments(  f, main_color);
+			if(size=3){}; //fill triangle
+			
     		break;
-    	case MODE_CURVE:
+    	case MODE_HERMIT_CURVE:
+    		if(size>=1) drawPluses(C,RED);
+    		if(size>=4) drawHermit(C);
+    		break;
+    	case MODE_BEZIER_CURVE:
+    		if(size>=1) drawPluses(C,GREEN);
+    		if(size>=2) drawBezier(C);
+    		break;
+    	case MODE_COONS_CURVE:
+    		if(size>=1) drawPluses(C,BLUE);
+    		if(size>=4) drawCoons(C);
     		break;
 	}
 	

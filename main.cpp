@@ -155,24 +155,33 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             mouseX = LOWORD(lParam);
             mouseY = HIWORD(lParam);
             printf("\n Left mouse click \t %d %d ",mouseX,mouseY);
+            
             Point new_point;
+            new_point.x = mouseX;
+            new_point.y = mouseY;
+            main_contour.push_back(new_point);
+            		
             //add a Point to Figure
-            switch(PROGRAM_MODE){
-            	case MODE_CIRCLES:
-            		new_point.x = mouseX;
-            		new_point.y = mouseY;
-            		main_contour.push_back(new_point);
-            		break;
-            	case MODE_CONTOUR:
-            		new_point.x = mouseX;
-            		new_point.y = mouseY;
-            		main_contour.push_back(new_point);
-            		break;
-            	case MODE_CONTOUR_FILLED:
-            		break;
-            	case MODE_CURVE:
-            		break;
-			}
+//            switch(PROGRAM_MODE){
+//            	case MODE_CIRCLES:
+//            		new_point.x = mouseX;
+//            		new_point.y = mouseY;
+//            		main_contour.push_back(new_point);
+//            		break;
+//            	case MODE_CONTOUR:
+//            		new_point.x = mouseX;
+//            		new_point.y = mouseY;
+//            		main_contour.push_back(new_point);
+//            		break;
+//            	case MODE_CONTOUR_FILLED:
+//            		break;
+//            	case MODE_HERMIT_CURVE:
+//            		break;
+//            	case MODE_HERMIT_CURVE:
+//            		break;
+//            	case MODE_HERMIT_CURVE:
+//            		break;
+//			}
 			InvalidateRect(hwnd, NULL, FALSE);
             break;
             
@@ -235,7 +244,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			case 'X': symmetryMainContour();  break;
 			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); printf("\nmethod %d", selectedMethod); break;
-			case 'M': PROGRAM_MODE = static_cast<progState>((PROGRAM_MODE + 1)%4); break;
+			case 'M': PROGRAM_MODE = static_cast<progState>((PROGRAM_MODE + 1)%6); break;
 			default: 
 				// Process other non-character keystrokes. 
 				break; 
