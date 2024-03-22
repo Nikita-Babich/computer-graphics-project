@@ -165,8 +165,7 @@ void DrawPixel(int x, int y, COLORREF color) {
 // Function to transfer buffer to screen
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
-    	printf("\n buffer exists, update called ");
-    	
+    	//printf("\n buffer exists, update called ");
         SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, NULL); //DIB_PAL_COLORS
     }
 }
@@ -465,7 +464,8 @@ void drawContour(  Contour C, COLORREF color){
 				(Point){0,0}
 			};
 	Segments f;	
-	int size = C.size();	
+	int size = C.size();
+	Contour C2;	
 			
 	switch(PROGRAM_MODE){
     	case MODE_CIRCLES:
@@ -474,9 +474,10 @@ void drawContour(  Contour C, COLORREF color){
 			}
     		break;
     	case MODE_CONTOUR:
-			C = sliceContour(C,E); //problematic
-			f = convertContourToSegments(C);
-			drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+    		C2=C;
+			//C2 = sliceContour(C,E); //problematic
+			f = convertContourToSegments(C2);
+			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			drawSegments(  f, main_color);
     		break;
     	case MODE_CONTOUR_FILLED:
@@ -578,7 +579,7 @@ Contour sliceContour(Contour original, Contour edges){
 	int size = original.size();
 	
 	if(size==2){
-		{
+		
 		
 		Point A = original[0];
 		Point B = original[1];
@@ -615,7 +616,7 @@ Contour sliceContour(Contour original, Contour edges){
 			result.push_back(B);
 			result.push_back(A);
 		}
-		}
+		
 		
 	} else if (size == 1){
 		
