@@ -114,8 +114,8 @@ COLORREF BLUE = RGB(255, 0, 0);
 COLORREF GREEN = RGB(0, 255, 0);
 COLORREF PINK = RGB(255, 0, 255);
 
-COLORREF main_color = WHITE;
-COLORREF background_color = BLACK;
+COLORREF main_color = BLACK;
+COLORREF background_color = WHITE;
 
 //circles
 //Pixel circle11 = rpi();
@@ -215,12 +215,13 @@ enum Direction {
 };
 
 enum progState {
-    INPUT_CIRCLES = 0,
-    INPUT_CONTOUR = 1,
-    INPUT_CURVE = 2
+    MODE_CIRCLES = 0,
+    MODE_CONTOUR = 1,
+    MODE_CONTOUR_FILLED = 2,
+    MODE_CURVE = 3
     
 };
-enum progState PROGRAM_STATE = INPUT_CIRCLES;
+enum progState PROGRAM_MODE = MODE_CIRCLES;
 
 
 //Declarations of drawing
@@ -464,18 +465,20 @@ void drawContour(  Contour C, COLORREF color){
 	Segments f;	
 	int size = C.size();	
 			
-	switch(PROGRAM_STATE){
-    	case INPUT_CIRCLES:
+	switch(PROGRAM_MODE){
+    	case MODE_CIRCLES:
     		for(int i=0; i<size-1; i+=2){
     			br_circle(  convertPointToPixel(C[i]), convertPointToPixel(C[i+1]), main_color );
 			}
     		break;
-    	case INPUT_CONTOUR:
+    	case MODE_CONTOUR:
 			//C = sliceContour(C,E); //problematic
 			f = convertContourToSegments(C);
-			drawSegments(  f, color);
+			drawSegments(  f, main_color);
     		break;
-    	case INPUT_CURVE:
+    	case MODE_CONTOUR_FILLED:
+    		break;
+    	case MODE_CURVE:
     		break;
 	}
 	

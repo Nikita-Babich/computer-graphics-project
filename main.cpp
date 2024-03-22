@@ -172,15 +172,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             printf("\n Left mouse click \t %d %d ",mouseX,mouseY);
             Point new_point;
             //add a Point to Figure
-            switch(PROGRAM_STATE){
-            	case INPUT_CIRCLES:
+            switch(PROGRAM_MODE){
+            	case MODE_CIRCLES:
             		new_point.x = mouseX;
             		new_point.y = mouseY;
             		main_contour.push_back(new_point);
             		break;
-            	case INPUT_CONTOUR:
+            	case MODE_CONTOUR:
             		break;
-            	case INPUT_CURVE:
+            	case MODE_CONTOUR_FILLED:
+            		break;
+            	case MODE_CURVE:
             		break;
 			}
 			//redrawAll(hwnd);
@@ -247,6 +249,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			
 			case 'X': symmetryMainContour();  break;
 			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); break;
+			case 'M': PROGRAM_MODE = static_cast<progState>((PROGRAM_MODE + 1)%4); break;
 			default: 
 				// Process other non-character keystrokes. 
 				break; 
