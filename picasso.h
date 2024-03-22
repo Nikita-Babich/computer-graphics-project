@@ -107,13 +107,15 @@ Contour main_contour;
 Objects scene; //for future if needed to drw separte objects
 
 
-
-COLORREF main_color = RGB(0, 0, 0);
 COLORREF BLACK = RGB(0, 0, 0); 
-COLORREF RED = RGB(255, 0, 0);
-COLORREF BLUE = RGB(0, 0, 255);
+COLORREF WHITE = RGB(255, 255, 255); 
+COLORREF RED = RGB(0, 0, 255);
+COLORREF BLUE = RGB(255, 0, 0);
 COLORREF GREEN = RGB(0, 255, 0);
 COLORREF PINK = RGB(255, 0, 255);
+
+COLORREF main_color = WHITE;
+COLORREF background_color = BLACK;
 
 //circles
 //Pixel circle11 = rpi();
@@ -147,12 +149,12 @@ void InitializeBuffer() {
         // Iterate over each column in the current row
         for (int j = 0; j < WINDOW_WIDTH; j++) {
             // Set the color of the current pixel in the buffer
-            buffer[i][j] = RGB(255, 255, 255); // or any other desired color
+            buffer[i][j] = background_color; //  background_color or RGB(255, 0, 0)
         }
     }
     // initialize buffer to background color or any default color
     //memset(buffer, RGB(255, 100, 255), WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(COLORREF));
-    printf( "\n buffer has %d %d %d", buffer[0], buffer[1], buffer[2]);
+    //printf( "\n buffer has %d %d %d", buffer[0], buffer[1], buffer[2]);
 }
 // Function to draw a pixel in buffer
 void DrawPixel(int x, int y, COLORREF color) {
@@ -165,7 +167,7 @@ void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
     	printf("\n buffer exists, update called ");
     	
-        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, DIB_RGB_COLORS);
+        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, NULL); //DIB_PAL_COLORS
     }
 }
 
@@ -186,9 +188,10 @@ void OpenColorPicker(HWND hwnd) {
 
     if (ChooseColor(&cc)) {
         // User selected a color
-        main_color = cc.rgbResult;
+        //main_color = cc.rgbResult;
+        main_color = RGB(GetBValue(cc.rgbResult), GetGValue(cc.rgbResult), GetRValue(cc.rgbResult)); //solving reverse color issue
     }
-    printf("\n Color picker end %d", main_color);
+    printf("\n Color picker end %x", main_color);
 }
 
 // enum controllers
