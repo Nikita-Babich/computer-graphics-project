@@ -98,8 +98,10 @@ int WINAPI WinMain(
 	// The parameters to ShowWindow explained:
 	// hWnd: the value returned from CreateWindow
 	// nCmdShow: the fourth parameter from WinMain
-	ShowWindow(hwnd, nCmdShow);
+	
 	// Segment for setup
+	InitializeBuffer();
+	ShowWindow(hwnd, nCmdShow);
 	srand(time(NULL));
 	main_contour = rcont(6);
 	
@@ -132,9 +134,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
-			
+			PAINTSTRUCT ps;
+        	HDC hdc;
+        	hdc = BeginPaint(hwnd, &ps); //Handle to Device Context
+        	drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
+        	UpdateScreen(hdc);
+        	EndPaint(hwnd, &ps);
+        	
 			//drawRect(hdc, (Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
             // All painting occurs here, between BeginPaint and EndPaint.
 			//SetPixel(hdc, 100, 100, RGB(255, 0, 0));
@@ -149,24 +155,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			//drawFigure(hdc, f1, rc()); 
 			
 			//HDC screenDC = GetDC(NULL);
-			//RECT fullscreen;
-			drawContour(hdc, main_contour, BLUE); //main_color //hdc //rc()
-			
-			//Orthovector test
-//			Segment s = rs();
-//			Segment s2 = orthoSegment(s);
-//			drawSegment(hdc, s, BLUE);
-//			drawSegment(hdc, s2, RED);
-			
 			//ReleaseDC(NULL, screenDC);
 			
-			//take shape
-			//transform //i don't have to remember original state, so this can be moved away
-			//cut by screen edges
-			//draw updated shape
-			
-			
-            EndPaint(hwnd, &ps);
         }
         return 0;
         

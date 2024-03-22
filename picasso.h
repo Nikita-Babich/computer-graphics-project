@@ -216,8 +216,8 @@ Contour sliceContour(Contour original, Contour edges);
 
 
 void OnMouseMoveDraw(HDC hdc, int x, int y){
-	SetPixel(hdc, x, y, rc());
-	
+	//SetPixel(hdc, x, y, rc());
+	DrawPixel(x,y, BLACK);
 }
 
 
@@ -250,7 +250,8 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		miny = (y1 < y2) ? y1 : y2;
 		maxy = (y1 >= y2) ? y1 : y2;
 		for (int y = miny; y <= maxy; y++) {
-			SetPixel(hdc, x1, y, color);
+			//SetPixel(hdc, x1, y, color);
+			DrawPixel(x1, y, color);
 		}
 		return;
 	}
@@ -258,7 +259,8 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		minx = (x1 < x2) ? x1 : x2;
 		maxx = (x1 >= x2) ? x1 : x2;
 		for (int x = minx; x <= maxx; x++) {
-			SetPixel(hdc, x, y1, color);
+			//SetPixel(hdc, x, y1, color);
+			DrawPixel(x, y1, color);
 		}
 		return;
 	}
@@ -269,7 +271,8 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		float y = static_cast<float>(miny);
 		m = static_cast<float>(DY) / static_cast<float>(DX);
 		for (int x = minx; x <= maxx; x++) {
-			SetPixel(hdc, x, static_cast<int>(y), color);
+			//SetPixel(hdc, x, static_cast<int>(y), color);
+			DrawPixel(x, static_cast<int>(y), color);
 			y += m;
 		}
 	}
@@ -279,7 +282,8 @@ void dda1(HDC hdc, Pixel start, Pixel end, COLORREF color){
 		float x = static_cast<float>(minx);
 		m = static_cast<float>(DX) / static_cast<float>(DY);
 		for (int y = miny; y <= maxy; y++) {
-			SetPixel(hdc, static_cast<int>(x), y, color);
+			//SetPixel(hdc, static_cast<int>(x), y, color);
+			DrawPixel(static_cast<int>(x), y, color);
 			x += m;
 		}
 	}
@@ -300,7 +304,8 @@ void dda2(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 	float y = y1;
 	int i = 0;
 	while (i <= steps) {
-		SetPixel(hdc, static_cast<int>(x), static_cast<int>(y), color);
+		//SetPixel(hdc, static_cast<int>(x), static_cast<int>(y), color);
+		DrawPixel(static_cast<int>(x), static_cast<int>(y), color);
 		x = x + dx;
 		y = y + dy;
 		i++;
@@ -323,7 +328,8 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		k1 = 2 * DY; k2 = k1 + 2 * DX * ((DY > 0) ? -1 : 1);
 		p = k1 - DX;
 		x = x1; y = y1;
-		SetPixel(hdc, x, y, color);
+		//SetPixel(hdc, x, y, color);
+		DrawPixel(x, y, color);
 		while (x < x2) {
 			x++;
 			if (DY > 0) {
@@ -332,7 +338,8 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 			else {
 				if (p < 0) { y--; p += k2; } else p += k1;
 			}
-			SetPixel(hdc, x, y, color);
+			//SetPixel(hdc, x, y, color);
+			DrawPixel(x, y, color);
 		}
 	}
 	else { //riadiaca Oy
@@ -347,7 +354,8 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		k1 = 2 * DX; k2 = k1 + 2 * DY * ((DX > 0) ? -1 : 1);
 		p = k1 - DY;
 		x = x1; y = y1;
-		SetPixel(hdc, x, y, color);
+		//SetPixel(hdc, x, y, color);
+		DrawPixel(x, y, color);
 		while (y < y2) {
 			y++;
 			if (DX > 0) {
@@ -358,7 +366,8 @@ void br(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 				if (p < 0) { x--; p += k2; }
 				else p += k1;
 			}
-			SetPixel(hdc, x, y, color);
+			//SetPixel(hdc, x, y, color);
+			DrawPixel(x, y, color);
 		}
 	}
 };
@@ -378,15 +387,25 @@ void br_circle(HDC hdc, Pixel start, Pixel end, COLORREF color) {
 		//6    3
 		//7    2
 		//  81
-		SetPixel(hdc, xc + x, yc  - y, color); //1
-		SetPixel(hdc, xc - x, yc  - y, color); //8
-		SetPixel(hdc, xc  - y, yc - x, color); //3
-		SetPixel(hdc, xc  - y, yc + x, color); //2
+//		SetPixel(hdc, xc + x, yc  - y, color); //1
+//		SetPixel(hdc, xc - x, yc  - y, color); //8
+//		SetPixel(hdc, xc  - y, yc - x, color); //3
+//		SetPixel(hdc, xc  - y, yc + x, color); //2
+//
+//		SetPixel(hdc, xc + x, yc  + y, color); //4
+//		SetPixel(hdc, xc - x, yc  + y, color); //5
+//		SetPixel(hdc, xc  + y, yc - x, color); //6
+//		SetPixel(hdc, xc  + y, yc + x, color); //7
 
-		SetPixel(hdc, xc + x, yc  + y, color); //4
-		SetPixel(hdc, xc - x, yc  + y, color); //5
-		SetPixel(hdc, xc  + y, yc - x, color); //6
-		SetPixel(hdc, xc  + y, yc + x, color); //7
+		DrawPixel( xc + x, yc  - y, color); //1
+		DrawPixel( xc - x, yc  - y, color); //8
+		DrawPixel( xc  - y, yc - x, color); //3
+		DrawPixel( xc  - y, yc + x, color); //2
+
+		DrawPixel( xc + x, yc  + y, color); //4
+		DrawPixel( xc - x, yc  + y, color); //5
+		DrawPixel( xc  + y, yc - x, color); //6
+		DrawPixel( xc  + y, yc + x, color); //7
 
 		if (p > 0) {
 			p = p - dvaY;
