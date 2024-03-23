@@ -77,6 +77,16 @@ Segments convertContourToSegments(Contour c){
 	}
 	return result;
 };
+Contour flip90(Contour original){
+	Contour result;
+	for (const Point& point : original) {
+		Point temp;
+		temp.x = point.y;
+		temp.y = -point.x;
+		result.push_back(temp);
+	};
+	return result;
+}
 
 //random creation
 Pixel rpi(){  return (Pixel){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Pixel 
@@ -168,7 +178,7 @@ void DrawPixel(int x, int y, COLORREF color) {
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
     	//printf("\n buffer exists, update called ");
-        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, NULL); //DIB_PAL_COLORS
+        SetDIBitsToDevice(hdc,  0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, WINDOW_HEIGHT, buffer, &bmi, DIB_RGB_COLORS); //DIB_PAL_COLORS
     }
 }
 
@@ -261,7 +271,7 @@ bool segmentInDraw(Point A, Point B){
 	}
 	return result;
 }
-Contour sliceContour(Contour original, Contour edges);
+Contour sliceContour(Contour original, Contour edges, int xmin);
 
 
 void OnMouseMoveDraw( int x, int y){
@@ -614,22 +624,43 @@ void drawContour(  Contour C, COLORREF color){
 			}
     		break;
     	case MODE_CONTOUR:
-    		//C2=C;
-			C2 = sliceContour(C,E); //problematic
-			f = convertContourToSegments(C2);
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
-			drawSegments(  f, main_color);
+			if(size==2){
+				C2 = sliceContour(C,E,0); //problematic
+				f = convertContourToSegments(C2);
+				drawSegments(  f, main_color);
+			} else if (size>2){
+				C = sliceContour(C,E,0);
+				C = flip90(C);
+				C = sliceContour(C,E,0);
+				C = flip90(C);
+				C = sliceContour(C,E,-DRAW_WIDTH);
+				C = flip90(C);
+				C = sliceContour(C,E,-DRAW_HEIGHT);
+				C = flip90(C);
+				f = convertContourToSegments(C);
+				drawSegments(  f, main_color);
+			}
     		break;
     	case MODE_CONTOUR_FILLED:
-    		//C2=C;
-			C2 = sliceContour(C,E); //problematic
-			f = convertContourToSegments(C2);
-			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
-			drawSegments(  f, main_color);
+    		drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+			if(size==2){
+				C = sliceContour(C,E,0); //problematic
+				f = convertContourToSegments(C2);
+				drawSegments(  f, main_color);
+			} else if (size>2){
+				C = sliceContour(C,E,0);
+				C = flip90(C);
+				C = sliceContour(C,E,0);
+				C = flip90(C);
+				C = sliceContour(C,E,-DRAW_WIDTH);
+				C = flip90(C);
+				C = sliceContour(C,E,-DRAW_HEIGHT);
+				C = flip90(C);
+			}
 			if(size=3){
 				fill_triangle(C);
-			}//fill triangle
-			else if (size >3){
+			} else if (size >3){
 			 	
 			}
 			
@@ -728,18 +759,9 @@ void symmetryMainContour(){
 	}
 }
 
-Contour flip90(Contour original){
-	Contour result;
-	for (const Point& point : original) {
-		Point temp;
-		temp.x = point.y;
-		temp.y = -point.x;
-		result.push_back(temp);
-	};
-	return result;
-}
 
-Contour sliceContour(Contour original, Contour edges){
+
+Contour sliceContour(Contour original, Contour edges, int xmin){
 	Contour result;
 	int size = original.size();
 	if(size==2){ //segment
@@ -780,29 +802,29 @@ Contour sliceContour(Contour original, Contour edges){
 	} else if (size == 1 or size == 0){
 		//pass
 	} else {
-//		Contour V = original;
-//		V.pop_back();
-//		size = V.size();
-//		Point S = V[size-1];
-//		float xmin = 0;
-//		for(int i=0; i<size; i++){
-//			if(V[i].x > xmin){
-//				if(S.x > xmin){
-//					result.push_back(V[i]);
-//				} else {
-//					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
-//					result.push_back(P);
-//					result.push_back(V[i]);
-//				
-//				}
-//			} else{
-//				if(S.x >= xmin){
-//					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
-//					result.push_back(P);
-//				}
-//			}
-//			S = V[i];
-//		}
+		Contour V = original;
+		V.pop_back();
+		size = V.size();
+		Point S = V[size-1];
+		float xmin = 0;
+		for(int i=0; i<size; i++){
+			if(V[i].x > xmin){
+				if(S.x > xmin){
+					result.push_back(V[i]);
+				} else {
+					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+					result.push_back(P);
+					result.push_back(V[i]);
+				
+				}
+			} else{
+				if(S.x >= xmin){
+					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+					result.push_back(P);
+				}
+			}
+			S = V[i];
+		}
 	}
 	return result;
 }
