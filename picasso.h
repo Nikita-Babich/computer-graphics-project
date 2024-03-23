@@ -483,13 +483,22 @@ void drawHermit(Contour C){
 	Segment s;
 	float deltat = 0.01;
 	float t;
-	for(int i = 1; i<=n; i++){
+	for(int i = 1; i<=n-1; i++){
 		s.start = C[(i-1)*2];
 		t = deltat;
-		Point Q1 = 
-			(Point){
-				C[(i-1)*2].x*F0(t) + C[i*2].x*F1(t) + 
-			}
+		while(t<1){
+			Point Q1 = 
+				(Point){
+				C[(i-1)*2].x*F0(t) + C[i*2].x*F1(t) + tv(C,(i-1)*2).x*F2(t) + tv(C,2*i).x*F3(t),
+				C[(i-1)*2].y*F0(t) + C[i*2].y*F1(t) + tv(C,(i-1)*2).y*F2(t) + tv(C,2*i).y*F3(t)
+			};
+			s.finish = Q1;
+			drawSegment(s, BLUE);
+			s.start = Q1;
+			t = t+deltat;
+		}
+		s.finish = C[i*2];
+		drawSegment(s, BLUE);
 	}
 }
 void drawContour(  Contour C, COLORREF color){
@@ -528,15 +537,15 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_HERMIT_CURVE:
     		if(size>=1) drawPluses(C,RED);
-    		if(size>=4) drawHermit(C);
+    		if(size>=4 && size%2==0) drawHermit(C);
     		break;
     	case MODE_BEZIER_CURVE:
     		if(size>=1) drawPluses(C,GREEN);
-    		if(size>=2) drawBezier(C);
+    		//if(size>=2) drawBezier(C);
     		break;
     	case MODE_COONS_CURVE:
     		if(size>=1) drawPluses(C,BLUE);
-    		if(size>=4) drawCoons(C);
+    		//if(size>=4) drawCoons(C);
     		break;
 	}
 	
