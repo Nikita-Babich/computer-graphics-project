@@ -728,6 +728,17 @@ void symmetryMainContour(){
 	}
 }
 
+Contour flip90(Contour original){
+	Contour result;
+	for (const Point& point : original) {
+		Point temp;
+		temp.x = point.y;
+		temp.y = -point.x;
+		result.push_back(temp);
+	};
+	return result;
+}
+
 Contour sliceContour(Contour original, Contour edges){
 	Contour result;
 	int size = original.size();
