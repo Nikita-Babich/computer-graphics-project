@@ -457,8 +457,8 @@ void br_circle(  Pixel start, Pixel end, COLORREF color) {
 void drawPluses(Contour C,COLORREF color){
 	
 	for (const Point& point : C) {
-		drawLine( (Point){point.x-2,point.y}, (Point){point.x+2,point.y}, color);
-		drawLine( (Point){point.x,point.y-2}, (Point){point.x,point.y+2}, color);
+		drawLine( (Point){point.x-5,point.y}, (Point){point.x+5,point.y}, color);
+		drawLine( (Point){point.x,point.y-5}, (Point){point.x,point.y+5}, color);
 	};
 }
 void drawSegments(  Segments f, COLORREF color){
@@ -506,17 +506,75 @@ void drawHermit(Contour C){
 	}
 	drawSegment((Segment){ C[size-1], C[size-2] }, PINK);
 }
+void printBezierCurve(const std::vector<Contour>& P) { //for debug
+    printf("Bezier Curve Contours:\n");
+    for (size_t i = 0; i < P.size(); ++i) {
+        printf("t = %zu:\t", i);
+        const Contour& contour = P[i];
+        for (const Point& point : contour) {
+            printf("(%d, %d)\t", point.x, point.y);
+        }
+        printf("\n");
+    }
+}
 void drawBezier(Contour C){
-	std::vector<Contour> P; //twodimentional
-
-    // Push the original Contour as the first line
-    result.push_back(C);
-    float deltat = 0.01;
-    float t=deltat;
+	int n = C.size();
+    float deltat = 0.001;
+    float t = deltat;
     Segment s;
-    s.start = P[0][0];
+    s.start = C[0];
     
-	
+    std::vector<Contour> P;
+    
+    while(t<1){
+    	P.clear();
+        P.push_back(C);
+    	for(int i = 1; i<=n; i++){
+    		Contour row;
+    		for(int j = 0; j<=n-i; j++){
+    			Point p = (Point){
+    				(1-t)*P[i-1][j].x + t * P[i-1][j+1].x,
+    				(1-t)*P[i-1][j].y + t * P[i-1][j+1].y
+				};
+				row.push_back(p);
+    		}
+    		P.push_back(row);
+		}
+		//printBezierCurve(P); //extremely slow debug function
+		s.finish = P[n-1][0];
+    	drawSegment(s, BLUE);
+    	s.start = s.finish;
+    	t = t+deltat;
+	}
+	s.finish = C[n-1];
+	drawSegment(s, BLUE);
+}
+
+float B0(float t){	return -t*t*t/6 + t*t/2 - t/2 + 1.0/6;	};
+float B1(float t){	return t*t*t/2 - t*t + 2.0/3;	};
+float B2(float t){	return -t*t*t/2 + t*t/2 + t/2 + 1.0/6;	};
+float B3(float t){	return t*t*t/6;	};
+void drawCoons(Contour C){
+	float deltat = 0.1;
+	Segment s;
+	for(int i=3; i<=C.size()-1; i++){
+		float t = 0;
+		s.start = (Point){
+			C[i-3].x*B0(0) + C[i-2].x*B1(0) + C[i-1].x*B2(0) + C[i].x*B3(0),
+			C[i-3].y*B0(0) + C[i-2].y*B1(0) + C[i-1].y*B2(0) + C[i].y*B3(0)
+		};
+		while(t<1){
+			t += deltat;
+			s.finish = (Point){
+				C[i-3].x*B0(t) + C[i-2].x*B1(t) + C[i-1].x*B2(t) + C[i].x*B3(t),
+				C[i-3].y*B0(t) + C[i-2].y*B1(t) + C[i-1].y*B2(t) + C[i].y*B3(t)
+			};
+			drawSegment(s, BLUE);
+			s.start = s.finish;
+		}
+		drawLine( (Point){s.start.x-5,s.start.y}, (Point){s.start.x+5,s.start.y}, BLACK);
+		drawLine( (Point){s.start.x,s.start.y-5}, (Point){s.start.x,s.start.y+5}, BLACK);
+	}
 }
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
@@ -562,7 +620,7 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_COONS_CURVE:
     		if(size>=1) drawPluses(C,BLUE);
-    		//if(size>=4) drawCoons(C);
+    		if(size>=4) drawCoons(C);
     		break;
 	}
 	
