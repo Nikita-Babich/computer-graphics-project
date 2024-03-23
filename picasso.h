@@ -506,6 +506,18 @@ void drawHermit(Contour C){
 	}
 	drawSegment((Segment){ C[size-1], C[size-2] }, PINK);
 }
+void drawBezier(Contour C){
+	std::vector<Contour> P; //twodimentional
+
+    // Push the original Contour as the first line
+    result.push_back(C);
+    float deltat = 0.01;
+    float t=deltat;
+    Segment s;
+    s.start = P[0][0];
+    
+	
+}
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
 				(Point){0,0}, 
@@ -546,7 +558,7 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_BEZIER_CURVE:
     		if(size>=1) drawPluses(C,GREEN);
-    		//if(size>=2) drawBezier(C);
+    		if(size>=2) drawBezier(C);
     		break;
     	case MODE_COONS_CURVE:
     		if(size>=1) drawPluses(C,BLUE);
@@ -555,14 +567,7 @@ void drawContour(  Contour C, COLORREF color){
 	}
 	
 }
-//void redrawAll(HWND hwnd, HDC hdc) {
-//    // Invalidate the entire client area
-//    InvalidateRect(hwnd, NULL, TRUE);
-//
-//    // Trigger a repaint message
-//    //UpdateWindow(hwnd);
-//    UpdateScreen(hdc);
-//}
+
 void drawRect( Point A, Point C, COLORREF color){
 	Point B = (Point){C.x, A.y};
 	Point D = (Point){A.x, C.y};
