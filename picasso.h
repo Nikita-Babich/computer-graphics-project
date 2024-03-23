@@ -511,12 +511,12 @@ void drawHermit(Contour C){
 				C[(i-1)*2].y*F0(t) + C[i*2].y*F1(t) + tv(C,(i-1)*2).y*F2(t) + tv(C,2*i).y*F3(t)
 			};
 			s.finish = Q1;
-			drawSegment(s, BLUE);
+			drawSegment(s, main_color);
 			s.start = Q1;
 			t = t+deltat;
 		}
 		s.finish = C[i*2];
-		drawSegment(s, BLUE);
+		drawSegment(s, main_color);
 	}
 	drawSegment((Segment){ C[size-1], C[size-2] }, PINK);
 }
@@ -556,12 +556,12 @@ void drawBezier(Contour C){
 		}
 		//printBezierCurve(P); //extremely slow debug function
 		s.finish = P[n-1][0];
-    	drawSegment(s, BLUE);
+    	drawSegment(s, main_color);
     	s.start = s.finish;
     	t = t+deltat;
 	}
 	s.finish = C[n-1];
-	drawSegment(s, BLUE);
+	drawSegment(s, main_color);
 }
 
 float B0(float t){	return -t*t*t/6 + t*t/2 - t/2 + 1.0/6;	};
@@ -583,11 +583,10 @@ void drawCoons(Contour C){
 				C[i-3].x*B0(t) + C[i-2].x*B1(t) + C[i-1].x*B2(t) + C[i].x*B3(t),
 				C[i-3].y*B0(t) + C[i-2].y*B1(t) + C[i-1].y*B2(t) + C[i].y*B3(t)
 			};
-			drawSegment(s, BLUE);
+			drawSegment(s, main_color);
 			s.start = s.finish;
 		}
-		drawLine( (Point){s.start.x-5,s.start.y}, (Point){s.start.x+5,s.start.y}, BLACK);
-		drawLine( (Point){s.start.x,s.start.y-5}, (Point){s.start.x,s.start.y+5}, BLACK);
+		drawPlus(s.start, BLACK);
 	}
 }
 
@@ -657,7 +656,7 @@ void drawRect( Point A, Point C, COLORREF color){
 	drawLine(  A, B, RED);
 	drawLine(  B, C, GREEN);
 	drawLine(  C, D, BLUE);
-	drawLine(  D, A, PINK);
+	drawLine(  D, A, GREEN);
 }
 
 //Implementations of modifications
