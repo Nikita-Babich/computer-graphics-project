@@ -477,13 +477,17 @@ Point tv(Contour c, int i){ //tangent vector
 	return (Point){b.x-a.x, b.y-a.y	};
 }
 void drawHermit(Contour C){
-	int n = C.size()/2;
+	int size = C.size();
+	int n = size/2;
 	//Contour points;
 	//Contour tangents;
 	Segment s;
 	float deltat = 0.01;
 	float t;
 	for(int i = 1; i<=n-1; i++){
+		drawSegment((Segment){
+			C[2*i-1], C[2*i-2]
+		}, PINK);
 		s.start = C[(i-1)*2];
 		t = deltat;
 		while(t<1){
@@ -500,6 +504,7 @@ void drawHermit(Contour C){
 		s.finish = C[i*2];
 		drawSegment(s, BLUE);
 	}
+	drawSegment((Segment){ C[size-1], C[size-2] }, PINK);
 }
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
