@@ -249,6 +249,18 @@ void scaleMainContour(Direction dir);
 void shearMainContour(Direction dir);
 void symmetryMainContour();
 bool pointInDraw(Point a){ return a.x<DRAW_WIDTH & a.x>0 & a.y<DRAW_HEIGHT & a.y>0;};
+bool segmentInDraw(Point A, Point B){
+	Point d = dif(A,B);
+	Point tester = A;
+	d.x = d.x/10; d.y = d.y/10;
+	bool result = pointInDraw(A);
+	for(int i = 0; i<10; i++){
+		tester.x += d.x;
+		tester.y += d.y;
+		result = result || pointInDraw(tester);
+	}
+	return result;
+}
 Contour sliceContour(Contour original, Contour edges);
 
 
@@ -454,11 +466,13 @@ void br_circle(  Pixel start, Pixel end, COLORREF color) {
 		x++;
 	}
 }
+void drawPlus(Point point,COLORREF color){
+	drawLine( (Point){point.x-5,point.y}, (Point){point.x+5,point.y}, color);
+	drawLine( (Point){point.x,point.y-5}, (Point){point.x,point.y+5}, color);
+}
 void drawPluses(Contour C,COLORREF color){
-	
 	for (const Point& point : C) {
-		drawLine( (Point){point.x-5,point.y}, (Point){point.x+5,point.y}, color);
-		drawLine( (Point){point.x,point.y-5}, (Point){point.x,point.y+5}, color);
+		drawPlus(point, color);
 	};
 }
 void drawSegments(  Segments f, COLORREF color){
@@ -576,6 +590,12 @@ void drawCoons(Contour C){
 		drawLine( (Point){s.start.x,s.start.y-5}, (Point){s.start.x,s.start.y+5}, BLACK);
 	}
 }
+
+int triangle_method = 0;
+void fill_triangle(Contour C){
+	
+	
+};
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
 				(Point){0,0}, 
@@ -595,19 +615,24 @@ void drawContour(  Contour C, COLORREF color){
 			}
     		break;
     	case MODE_CONTOUR:
-    		C2=C;
-			//C2 = sliceContour(C,E); //problematic
+    		//C2=C;
+			C2 = sliceContour(C,E); //problematic
 			f = convertContourToSegments(C2);
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			drawSegments(  f, main_color);
     		break;
     	case MODE_CONTOUR_FILLED:
-    		C2=C;
-			//C2 = sliceContour(C,E); //problematic
+    		//C2=C;
+			C2 = sliceContour(C,E); //problematic
 			f = convertContourToSegments(C2);
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			drawSegments(  f, main_color);
-			if(size=3){}; //fill triangle
+			if(size=3){
+				fill_triangle(C);
+			}//fill triangle
+			else if (size >3){
+			 	
+			}
 			
     		break;
     	case MODE_HERMIT_CURVE:
@@ -706,77 +731,71 @@ void symmetryMainContour(){
 
 Contour sliceContour(Contour original, Contour edges){
 	Contour result;
-	
 	int size = original.size();
-	
-	if(size==2){
-		
-		
+	if(size==2){ //segment
 		Point A = original[0];
 		Point B = original[1];
-		Point d = dif(A,B);
-		
-//		float tl=0, tu=1;
-//		for (const Segment& segment : E) {
-//			
-//		};
-		//bool inside = pointInDraw(A) | pointInDraw(B);
-		//if(inside == FALSE) return result;
-		float tl=0, tu=1;
-		int edgesCount = edges.size();
-		for (int i=0; i < edgesCount-1; i++){
-			Point normal = orthoVector(edges[i], edges[i+1]);
-			float dn = scalarProduct(d, normal), wn = scalarProduct(dif(edges[i],A), normal);
-			if(dn!=0){
-				float t = -wn / dn;
-				if(dn>0 & t<=1){
-					tl=std::max(t,tl);
-				}
-				if(dn<0 & t>=0){
-					tu=std::min(t,tu);
+		if (segmentInDraw(A, B)){ //(pointInDraw(A) || pointInDraw(B)){
+			Point d = dif(A,B);
+			float tl=0, tu=1; //
+			int edgesCount = edges.size();//
+			for (int i=0; i < edgesCount-1; i++){
+				Point normal = orthoVector(edges[i], edges[i+1]);
+				float dn = scalarProduct(d, normal), wn = scalarProduct(dif(edges[i],A), normal);
+				if(dn!=0){
+					float t = -wn / dn;
+					if(dn>0 && t<=1){
+						tl=std::max(t,tl);
+					}
+					if(dn<0 && t>=0){
+						tu=std::min(t,tu);
+					}
 				}
 			}
+			if(tl==0 && tu==1){
+				//printf("\n no need in slice");
+				return original; 
+			} else if(tl<tu){
+				Point P1, P2;
+				P1.x += A.x + d.x*tl;
+				P1.y += A.y + d.y*tl;
+				P2.x += A.x + d.x*tu;
+				P2.y += A.y + d.y*tu;
+				result.push_back(P1);
+				result.push_back(P2);
+				drawPlus(P1, PINK);
+				drawPlus(P2, PINK);
+			}
 		}
-		if(tl<tu){
-			A.x += d.x*tl;
-			A.y += d.y*tl;
-			
-			B.x += d.x*tu;
-			B.y += d.y*tu;
-			
-			result.push_back(B);
-			result.push_back(A);
-		}
-		
-		
-	} else if (size == 1){
-		
+	} else if (size == 1 or size == 0){
+		//pass
 	} else {
-		Contour V = original;
-		V.pop_back();
-		size = V.size();
-		Point S = V[size];
-		float xmin = 0;
-		for(int i=0; i<size; i++){
-			if(V[i].x > xmin){
-				if(S.x > xmin){
-					result.push_back(V[i]);
-				} else {
-					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
-					result.push_back(P);
-					result.push_back(V[i]);
-				
-				}
-			} else{
-				if(S.x >= xmin){
-					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
-					result.push_back(P);
-				}
-			}
-			S = V[i];
-		}
+//		Contour V = original;
+//		V.pop_back();
+//		size = V.size();
+//		Point S = V[size-1];
+//		float xmin = 0;
+//		for(int i=0; i<size; i++){
+//			if(V[i].x > xmin){
+//				if(S.x > xmin){
+//					result.push_back(V[i]);
+//				} else {
+//					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+//					result.push_back(P);
+//					result.push_back(V[i]);
+//				
+//				}
+//			} else{
+//				if(S.x >= xmin){
+//					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};
+//					result.push_back(P);
+//				}
+//			}
+//			S = V[i];
+//		}
 	}
 	return result;
 }
+
 
 #endif // PICASSO_H_INCLUDED

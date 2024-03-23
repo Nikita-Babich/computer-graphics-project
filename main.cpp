@@ -242,6 +242,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case 'H': shearMainContour(RIGHT);  break;
 			case 'F': shearMainContour(LEFT);  break;
 			
+			case 'B': triangle_method = (triangle_method+1)%2;  break;
 			case 'R': main_contour = rcont(10);  break;
 			case 'X': symmetryMainContour();  break;
 			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); printf("\nmethod %d", selectedMethod); break;
