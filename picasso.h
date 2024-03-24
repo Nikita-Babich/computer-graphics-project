@@ -209,11 +209,11 @@ void OpenColorPicker(HWND hwnd, int which) {
 
 // enum controllers
 enum LineMethod {
-    DDA1 = 1,
-    DDA2 = 2,
-    Bresenham = 3
+    DDA1 = 0,
+    DDA2 = 1,
+    Bresenham = 2
 };
-enum LineMethod selectedMethod = Bresenham;
+enum LineMethod selectedMethod = DDA1;
 
 enum SliceMethod {
     CyrusBeck = 1,
@@ -388,7 +388,7 @@ void br( Pixel start, Pixel end, COLORREF color) {
 		p = k1 - DX;
 		x = x1; y = y1;
 		//SetPixel(  x, y, color);
-		DrawPixel(x, y, color);
+		DrawPixel(x+1, y+1, color);
 		while (x < x2) {
 			x++;
 			if (DY > 0) {
@@ -398,7 +398,7 @@ void br( Pixel start, Pixel end, COLORREF color) {
 				if (p < 0) { y--; p += k2; } else p += k1;
 			}
 			//SetPixel(hdc, x, y, color);
-			DrawPixel(x, y, color);
+			DrawPixel(x+1, y+1, color);
 		}
 	}
 	else { //riadiaca Oy
@@ -414,7 +414,7 @@ void br( Pixel start, Pixel end, COLORREF color) {
 		p = k1 - DY;
 		x = x1; y = y1;
 		//SetPixel(  x, y, color);
-		DrawPixel(x, y, color);
+		DrawPixel(x+1, y+1, color);
 		while (y < y2) {
 			y++;
 			if (DX > 0) {
@@ -426,7 +426,7 @@ void br( Pixel start, Pixel end, COLORREF color) {
 				else p += k1;
 			}
 			//SetPixel(hdc, x, y, color);
-			DrawPixel(x, y, color);
+			DrawPixel(x+1, y+1, color);
 		}
 	}
 };
@@ -605,6 +605,10 @@ void fill_triangle(Contour C){
 	
 	
 };
+void fill_poly(Contour C){
+	
+	
+}
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
 				(Point){0,0}, 
@@ -625,6 +629,7 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_CONTOUR:
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+			(size==1)? drawPlus(C[0], RED) : (void)0	;
 			if(size==2){
 				C2 = sliceContour(C,E,0); //problematic
 				f = convertContourToSegments(C2);
@@ -658,11 +663,7 @@ void drawContour(  Contour C, COLORREF color){
 				C = sliceContour(C,E,-DRAW_HEIGHT);
 				C = flip90(C);
 			}
-			if(size=3){
-				fill_triangle(C);
-			} else if (size >3){
-			 	
-			}
+			(size==3) ? (fill_triangle(C)) : (fill_poly(C));
 			
     		break;
     	case MODE_HERMIT_CURVE:
@@ -761,7 +762,7 @@ void symmetryMainContour(){
 
 
 
-Contour sliceContour(Contour original, Contour edges, int xmin){
+Contour sliceContour(Contour original, Contour edges, int xmin_){
 	Contour result;
 	int size = original.size();
 	if(size==2){ //segment
@@ -803,13 +804,14 @@ Contour sliceContour(Contour original, Contour edges, int xmin){
 		//pass
 	} else {
 		Contour V = original;
-		V.pop_back();
-		size = V.size();
+		//push
+		//V.pop_back();
+		//size = V.size();
 		Point S = V[size-1];
-		float xmin = 0;
+		float xmin = xmin_;
 		for(int i=0; i<size; i++){
 			if(V[i].x > xmin){
-				if(S.x > xmin){
+				if(S.x >= xmin){
 					result.push_back(V[i]);
 				} else {
 					Point P = {xmin, S.y + (xmin - S.x)*(V[i].y - S.y)/(V[i].x - S.x)};

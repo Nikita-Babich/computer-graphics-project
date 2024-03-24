@@ -245,7 +245,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case 'B': triangle_method = (triangle_method+1)%2;  break;
 			case 'R': main_contour = rcont(10);  break;
 			case 'X': symmetryMainContour();  break;
-			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3+1); printf("\nmethod %d", selectedMethod); break;
+			case 'Z': selectedMethod = static_cast<LineMethod>((selectedMethod + 1)%3); printf("\nmethod %d", selectedMethod); break;
 			case 'M': PROGRAM_MODE = static_cast<progState>((PROGRAM_MODE + 1)%6); break;
 			default: 
 				// Process other non-character keystrokes. 
