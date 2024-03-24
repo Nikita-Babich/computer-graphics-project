@@ -595,16 +595,56 @@ void drawCoons(Contour C){
 	}
 }
 
+float dist(Point A, Point B){
+	float dx = (B.x-A.x);
+	float dy = (B.y-A.y);
+	return std::sqrt(dx*dx + dy*dy);
+}
 int triangle_method = 0;
+void ExtractRGBComponents(COLORREF color, int *red, int *green, int *blue) {
+    *red = GetRValue(color);
+    *green = GetGValue(color);
+    *blue = GetBValue(color);
+}
 COLORREF colorchooser(float x, float y, Contour C){
+	Point P = (Point){x,y};
 	if(triangle_method){ //blend
+		float L0 = abs(
+			(C[1].x-P.x) * (C[2].y-P.y) - (C[1].y - P.y) * (C[2].x - P.x)
+			) / abs(
+			(C[1].x-C[0].x) * (C[2].y-C[0].y) - (C[1].y - C[0].y) * (C[2].x - C[0].x)
+		);
+		float L1 = abs(
+			(C[0].x-P.x) * (C[2].y-P.y) - (C[0].y - P.y) * (C[2].x - P.x)
+			) / abs(
+			(C[1].x-C[0].x) * (C[2].y-C[0].y) - (C[1].y - C[0].y) * (C[2].x - C[0].x)
+		);
+		float L2 = 1 - L0 - L1;
+		int R1, G1, B1, R2, G2, B2, R3, G3, B3;
+    	ExtractRGBComponents(RED, &R1, &G1, &B1);
+    	ExtractRGBComponents(GREEN, &R2, &G2, &B2);
+    	ExtractRGBComponents(BLUE, &R3, &G3, &B3);
 		
+		int R = (int)(L0 * R1 + L1 * R2 + L2 * R3);
+    	int G = (int)(L0 * G1 + L1 * G2 + L2 * G3);
+    	int B = (int)(L0 * B1 + L1 * B2 + L2 * B3);
+    	R = (R < 0) ? 0 : ((R > 255) ? 255 : R);
+    	G = (G < 0) ? 0 : ((G > 255) ? 255 : G);
+    	B = (B < 0) ? 0 : ((B > 255) ? 255 : B);
+    	
+    	return RGB(R, G, B);
+    
 	} else { //closest point
-		
+		float d0 = dist(P,C[0]);
+		float d1 = dist(P,C[1]);
+		float d2 = dist(P,C[2]);
+		if (d0<d1 && d0 < d2) return RED;
+		if (d1<d0 && d1 < d2) return GREEN;
+		if (d2<d0 && d2 < d1) return BLUE;
 	};
 	return RED;
 }
-void fill_sliced_triangle(Contour C){
+void fill_sliced_triangle(Contour C, Contour orig){
 	Segment e1, e2; float we1, we2;
 	float y = e1.start.y; float ymax = e1.finish.y;
 	float x1 = e1.start.x; float x2 = e2.start.x;
@@ -627,24 +667,22 @@ void fill_sliced_triangle(Contour C){
 		x1 = e1.start.x;
 		x2 = e2.start.x;
 	};
-	
 	while(y < ymax){
 		for(float i = std::min(x1, x2); i <= std::max(x1, x2); i=i+1){
-			DrawPixel(static_cast<int>(i),static_cast<int>(y), colorchooser(i,y,C));
+			DrawPixel(static_cast<int>(i),static_cast<int>(y), colorchooser(i,y,orig));
 		}
 		x1 += we1;
 		x2 += we2;
 		y+=1;
-	}    	
-	
+	}
 }
-void fill_triangle(Contour C){
+void fill_triangle(Contour C, Contour orig){
 	std::sort(C.begin(), C.end(), [](const Point& a, const Point& b) {
         if (a.y == b.y) return a.x < b.x;
         return a.y < b.y;
     });
     if(C[0].y == C[1].y || C[1].y == C[2].y) {
-    	fill_sliced_triangle(C);
+    	fill_sliced_triangle(C, orig);
 	} else { // slicing
 		float m = (C[2].y - C[0].y)/(C[2].x - C[0].x);
 		Point P = (Point){
@@ -656,20 +694,110 @@ void fill_triangle(Contour C){
 		if(C[1].x < P.x){
 			upper.push_back(C[0]); upper.push_back(C[1]); upper.push_back(P);
 			lower.push_back(C[1]); lower.push_back(P); lower.push_back(C[2]);
-			fill_sliced_triangle(upper);
-			fill_sliced_triangle(lower);
+			fill_sliced_triangle(upper, orig);
+			fill_sliced_triangle(lower, orig);
 		} else {
 			upper.push_back(C[0]); upper.push_back(P); upper.push_back(C[1]);
 			lower.push_back(P); lower.push_back(C[1]); lower.push_back(C[2]);
-			fill_sliced_triangle(upper);
-			fill_sliced_triangle(lower);
+			fill_sliced_triangle(upper, orig);
+			fill_sliced_triangle(lower, orig);
 		}
 	}
 };
+
+void ReorientSegment(Segment &segment) {
+    if (segment.start.y > segment.finish.y) {
+        Point temp = segment.start;
+        segment.start = segment.finish;
+        segment.finish = temp;
+    }
+}
+void ReorientSegments(Segments &segments) {
+    for (int i = 0; i < segments.size(); i++) {
+        ReorientSegment(segments[i]);
+    }
+}
+float slope(Segment S){
+	//division by 0 risk
+	if(S.finish.x - S.start.x == 0) return 10000;
+	return (S.finish.y - S.start.y)/(S.finish.x - S.start.x);
+}
+void ShortenSegments(Segments &segments) {
+	for (int i = 0; i < segments.size(); i++) {
+        segments[i].finish.y--;
+    }
+}
+bool CompareSegments(const Segment &a, const Segment &b) {
+    return a.start.y < b.start.y;
+}
+float getMaxY(const Segments &ss) {
+    float maxY = ss[0].start.y; 
+    for (const Segment &segment : ss) {
+        maxY = std::max(maxY,  segment.finish.y);
+    }
+    return maxY;
+}
+typedef struct {
+    Segment s;         
+    float dy;
+    float x;
+    float w;
+} Edgeinfo;
+typedef std::vector<Edgeinfo> EdgeinfoRow;
+typedef std::vector<EdgeinfoRow> EdgeinfoTable;
 void fill_poly(Contour C){
+	Segments ss = convertContourToSegments(C);
+	ReorientSegments(ss);
 	
+	std::vector<float> mVector(ss.size());
+	for (int i = 0; i < ss.size(); ++i) {
+        mVector[i] = slope(ss[i]); 
+    }
+    ShortenSegments(ss);
+	std::sort(ss.begin(), ss.end(), CompareSegments);
+	
+	//
+	float ymin = ss[0].start.y;
+	float ymax = getMaxY(ss);
+	EdgeinfoTable table(static_cast<int>(ymax-ymin));
+	for (int i = 0; i < ss.size(); ++i) {
+		const Segment &segment = ss[i];
+        Edgeinfo A = (Edgeinfo){
+        	segment, segment.finish.y - segment.start.y, segment.start.x, 1.0/mVector[i]
+		};
+        table[static_cast<int>(segment.start.y-ymin)].push_back(A);
+    }
+	
+	EdgeinfoRow ZAH;
+	float y = ymin;
+	for(int i = 0; i < table.size(); ++i) {
+		if(table[i].size() > 0) {
+			for(int j = 0; j < table[i].size(); ++j) {
+				ZAH.push_back(table[i][j]);
+			}
+		}
+		if(!ZAH.empty()){
+			std::sort(ZAH.begin(), ZAH.end(), [](const Edgeinfo& a, const Edgeinfo& b) { return a.x < b.x; });
+		}
+		for(int i = 0; i<ZAH.size()-1; i+=2){
+			if((int)ZAH[i].x != (int)ZAH[i+1].x){
+				drawLine(  (Point){ ZAH[i].x, y}, (Point) {ZAH[i+1].x, y}, main_color);
+			};
+		}
+		//delete from ZAH all edges  with dy=0;
+		ZAH.erase(std::remove_if(ZAH.begin(), ZAH.end(), [](const Edgeinfo& edge) {
+	    	return edge.dy < 0.5;
+		}), ZAH.end());
+		for(int i = 0; i<ZAH.size(); i++){
+			ZAH[i].dy--;
+			ZAH[i].x = ZAH[i].x + ZAH[i].w;
+		}
+		y++;
+	}
 	
 }
+
+
 void drawContour(  Contour C, COLORREF color){
 	Contour E = {
 				(Point){0,0}, 
@@ -680,7 +808,7 @@ void drawContour(  Contour C, COLORREF color){
 			};
 	Segments f;	
 	int size = C.size();
-	Contour C2;	
+	Contour orig = C;	
 			
 	switch(PROGRAM_MODE){
     	case MODE_CIRCLES:
@@ -692,8 +820,8 @@ void drawContour(  Contour C, COLORREF color){
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			(size==1) ? drawPlus(C[0], RED) : (void)0	;
 			if(size==2){
-				C2 = sliceContour(C,E,0); //problematic
-				f = convertContourToSegments(C2);
+				C = sliceContour(C,E,0); 
+				f = convertContourToSegments(C);
 				drawSegments(  f, main_color);
 			} else if (size>2){
 				C = sliceContour(C,E,0);
@@ -710,6 +838,7 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_CONTOUR_FILLED:
     		drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
+    		
 			if(size==2){
 				C = sliceContour(C,E,0);
 				f = convertContourToSegments(C);
@@ -724,7 +853,7 @@ void drawContour(  Contour C, COLORREF color){
 				C = sliceContour(C,E,-DRAW_HEIGHT);
 				C = flip90(C);
 			}
-			if(C.size()==3) { fill_triangle(C);} else { fill_poly(C); };
+			if(C.size()==3) { fill_triangle(C, orig);} else { fill_poly(C); };
     		break;
     	case MODE_HERMIT_CURVE:
     		if(size>=1) drawPluses(C,RED);
