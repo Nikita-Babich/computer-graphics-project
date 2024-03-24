@@ -91,7 +91,7 @@ Contour flip90(Contour original){
 
 //random creation
 Pixel rpi(){  return (Pixel){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Pixel 
-Point rpo(){ return (Point){rand() % DRAW_WIDTH, rand() % DRAW_HEIGHT}; } //random Point
+Point rpo(){ return (Point){(float)(rand() % DRAW_WIDTH), (float)(rand() % DRAW_HEIGHT)}; } //random Point
 Segment rs(){ return (Segment){ convertPixelToPoint(rpi()), convertPixelToPoint(rpi()) }; }; // random segment
 Segments rss(int size = 10){
 	Segments result;
@@ -809,11 +809,10 @@ void fill_poly(Contour C){
 		});
 		
 		//printf("\n Sorted ZAH %d ",i);
-		
 		if(ZAH.size()%2==0){
 			for(int k = 0; k<ZAH.size(); k+=2){
 				if(static_cast<int>(ZAH[k].x) != static_cast<int>(ZAH[k + 1].x)){
-					drawLine(  (Point){ ZAH[k].x, y}, (Point) {ZAH[k+1].x, y}, main_color);
+					drawLine(  (Point){ ZAH[k].x, (float)y}, (Point) {ZAH[k+1].x, (float)y}, main_color);
 				};
 			}
 		}
