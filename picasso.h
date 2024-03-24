@@ -629,7 +629,7 @@ void drawContour(  Contour C, COLORREF color){
     		break;
     	case MODE_CONTOUR:
 			drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
-			(size==1)? drawPlus(C[0], RED) : (void)0	;
+			(size==1) ? drawPlus(C[0], RED) : (void)0	;
 			if(size==2){
 				C2 = sliceContour(C,E,0); //problematic
 				f = convertContourToSegments(C2);
@@ -810,7 +810,7 @@ Contour sliceContour(Contour original, Contour edges, int xmin_){
 		Point S = V[size-1];
 		float xmin = xmin_;
 		for(int i=0; i<size; i++){
-			if(V[i].x > xmin){
+			if(V[i].x >= xmin){
 				if(S.x >= xmin){
 					result.push_back(V[i]);
 				} else {
