@@ -205,7 +205,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             case VK_RIGHT: translateMainContour(RIGHT);  break;
             case VK_UP: translateMainContour(UP); break; 
 			case VK_DOWN: translateMainContour(DOWN);  break; 
-	
 			case VK_HOME: 
 				// Process the HOME key. 
 				break; 

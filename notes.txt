@@ -1,7 +1,7 @@
 ---compiler options add to linker: 
 -static-libgcc -lgdi32 -mwindows -lcomdlg32 -Wnarrowing
+-static-libgcc -lgdi32 -lcomdlg32
 
-TODO: slicer does not return anything
 
 ---empirical notes
 L"x" is the macro to replace _T("x") if it fails
@@ -51,3 +51,11 @@ SetPixel(hdc, 100, 100, RGB(255, 0, 0));
 //HDC scrDC = GetDC(NULL);
     		//OnMouseMoveDraw(scrDC, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
     		//ReleaseDC(NULL, scrDC);
+
+ 
+    // Remove edges with length less than 1, not a solution
+//    ss.erase(std::remove_if(ss.begin(), ss.end(), [](const Segment& segment) {
+//        float dx = segment.finish.x - segment.start.x;
+//        float dy = segment.finish.y - segment.start.y;
+//        return std::hypot(dx, dy) < 1.0f;
+//    }), ss.end());

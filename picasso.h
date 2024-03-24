@@ -705,6 +705,14 @@ void fill_triangle(Contour C, Contour orig){
 	}
 };
 
+void printSegments(const Segments &segments) {
+	printf("\n\n");
+    for (const Segment &segment : segments) {
+        printf("Segment: Start(%f, %f), End(%f, %f)\n",
+               segment.start.x, segment.start.y,
+               segment.finish.x, segment.finish.y);
+    }
+}
 void ReorientSegment(Segment &segment) {
     if (segment.start.y > segment.finish.y) {
         Point temp = segment.start;
@@ -713,101 +721,120 @@ void ReorientSegment(Segment &segment) {
     }
 }
 void ReorientSegments(Segments &segments) {
+	//printSegments(segments);
     for (int i = 0; i < segments.size(); i++) {
         ReorientSegment(segments[i]);
     }
+    //printSegments(segments);
 }
 float slope(Segment S){
 	//division by 0 risk
-	if(S.finish.x - S.start.x == 0) return 1000;
+	if(S.finish.x - S.start.x == 0) return 200; //FLT_MAX
 	return (S.finish.y - S.start.y)/(S.finish.x - S.start.x);
 }
 void ShortenSegments(Segments &segments) {
 	for (int i = 0; i < segments.size(); i++) {
         segments[i].finish.y--;
     }
+    //printSegments(segments); //ok
 }
 bool CompareSegments(const Segment &a, const Segment &b) {
     return a.start.y < b.start.y;
 }
-float getMaxY(const Segments &ss) {
-    float maxY = ss[0].start.y; 
-    for (const Segment &segment : ss) {
-        maxY = std::max(maxY,  segment.finish.y);
-    }
-    return maxY;
-}
+
 typedef struct {
-    Segment s;         
-    float dy;
+    Segment s;  
+	float m;
+	int yz;
+	int yk;       
+    int dy;
     float x;
     float w;
 } Edgeinfo;
 typedef std::vector<Edgeinfo> EdgeinfoRow;
 typedef std::vector<EdgeinfoRow> EdgeinfoTable;
+bool compareEdges(const Edgeinfo &a, const Edgeinfo &b) {
+    return a.yz < b.yz;
+}
+int getMaxY(const EdgeinfoRow &row) {
+    int maxY = row[0].yz; 
+    for (const Edgeinfo &edge : row) {
+        maxY = std::max(maxY,  edge.yk);
+    }
+    return maxY;
+}
 void fill_poly(Contour C){
 	if(C.size()<4)return;
 	Segments ss = convertContourToSegments(C);
 	ReorientSegments(ss);
-    ShortenSegments(ss);
-    
-    // Remove edges with length less than 1
-    ss.erase(std::remove_if(ss.begin(), ss.end(), [](const Segment& segment) {
-        float dx = segment.finish.x - segment.start.x;
-        float dy = segment.finish.y - segment.start.y;
-        return std::hypot(dx, dy) < 1.0f;
-    }), ss.end());
-    
-	std::sort(ss.begin(), ss.end(), CompareSegments);
 	
-	std::vector<float> mVector(ss.size());
-	for (int i = 0; i < ss.size(); ++i) {
-        mVector[i] = slope(ss[i]); 
-    }
-	//
-	float ymin = ss[0].start.y;
-	float ymax = getMaxY(ss);
-	EdgeinfoTable table(static_cast<int>(ymax-ymin)+1);
-	for (int i = 0; i < ss.size(); ++i) {
-		const Segment &segment = ss[i];
-        Edgeinfo A = (Edgeinfo){
-        	segment, 
-			segment.finish.y - segment.start.y, 
-			segment.start.x, 
-			(segment.finish.x - segment.start.x == 0) ? FLT_MAX : 1.0f / mVector[i]
-		};
-        table[static_cast<int>(segment.start.y-ymin)].push_back(A);
+	EdgeinfoRow origin;
+	
+	for(const Segment &segment: ss){
+		Edgeinfo edgetemp;
+		edgetemp.s = segment;
+		edgetemp.x = segment.start.x;
+		edgetemp.m = slope(segment);
+		edgetemp.w = 1.0/edgetemp.m;
+		edgetemp.yz = (int)segment.start.y;
+		edgetemp.yk = ((int)segment.finish.y) - 1;
+		edgetemp.dy = edgetemp.yk - edgetemp.yz;
+		
+		origin.push_back(edgetemp);
+	}
+    
+    std::sort(origin.begin(), origin.end(), compareEdges);
+	
+	int ymin = std::max(origin[0].yz, 0);
+	int ymax = getMaxY(origin);
+	printf("\n ymin=%f \t ymax=%f", ymin,ymax); 
+	
+	
+	//EdgeinfoTable table(ymax-ymin);
+	EdgeinfoTable table(DRAW_HEIGHT);
+	for (int i = 0; i < origin.size(); ++i) {
+        table[std::max(0,origin[i].yz-ymin)].push_back(origin[i]);
     }
 	
 	EdgeinfoRow ZAH;
-	float y = ymin;
+	int y = ymin;
 	for(int i = 0; i < table.size(); ++i) {
-		if(table[i].size() > 0) {
-			for(int j = 0; j < table[i].size(); ++j) {
-				ZAH.push_back(table[i][j]);
+		
+		for(int j = 0; j < table[i].size(); ++j) {
+			ZAH.push_back(table[i][j]);
+		}
+		
+		std::sort(ZAH.begin(), ZAH.end(), [](const Edgeinfo& a, const Edgeinfo& b) {
+    		return a.x < b.x;
+		});
+		
+		//printf("\n Sorted ZAH %d ",i);
+		
+		if(ZAH.size()%2==0){
+			for(int k = 0; k<ZAH.size(); k+=2){
+				if(static_cast<int>(ZAH[k].x) != static_cast<int>(ZAH[k + 1].x)){
+					drawLine(  (Point){ ZAH[k].x, y}, (Point) {ZAH[k+1].x, y}, main_color);
+				};
 			}
 		}
-		if(!ZAH.empty()){
-			std::sort(ZAH.begin(), ZAH.end(), [](const Edgeinfo& a, const Edgeinfo& b) { return a.x < b.x; });
-		}
-		for(int k = 0; k<ZAH.size()-1; k+=2){
-			if(static_cast<int>(ZAH[k].x) != static_cast<int>(ZAH[k + 1].x)){
-				drawLine(  (Point){ ZAH[k].x, y}, (Point) {ZAH[k+1].x, y}, main_color);
-			};
-		}
-		//delete from ZAH all edges  with dy=0;
-		ZAH.erase(std::remove_if(ZAH.begin(), ZAH.end(), [](const Edgeinfo& edge) {
-	    	return edge.dy < 0.5;
-		}), ZAH.end());
+		
+		//printf("\n Drew lines %d ",i);
+		
 		if (!ZAH.empty()) {
-			for(int k = 0; k<ZAH.size(); k++){
-				ZAH[k].dy--;
-				ZAH[k].x = ZAH[k].x + ZAH[k].w;
-			}
+			ZAH.erase(std::remove_if(ZAH.begin(), ZAH.end(), [](const Edgeinfo& edge) {
+	    		return edge.dy == 0;
+			}), ZAH.end());	
 		}
+		
+		//printf("\n Erased ZAH memb %d ",i);
+		
+		for(int k = 0; k<ZAH.size(); k++){
+			ZAH[k].dy--;
+			ZAH[k].x = ZAH[k].x + ZAH[k].w;
+		}
+		
 		y++;
 	}
-	
 }
 
 
