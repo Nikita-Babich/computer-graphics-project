@@ -775,7 +775,7 @@ void fill_poly(Contour C){
 		edgetemp.s = segment;
 		edgetemp.x = segment.start.x;
 		edgetemp.m = slope(segment);
-		edgetemp.w = 1.0/edgetemp.m;
+		edgetemp.w = (edgetemp.m==0) ? 1000: 1.0/edgetemp.m;
 		edgetemp.yz = (int)segment.start.y;
 		edgetemp.yk = ((int)segment.finish.y) - 1;
 		edgetemp.dy = edgetemp.yk - edgetemp.yz;
