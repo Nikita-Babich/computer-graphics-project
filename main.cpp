@@ -162,28 +162,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             new_point.x = mouseX;
             new_point.y = mouseY;
             main_contour.push_back(new_point);
-            		
-            //add a Point to Figure
-//            switch(PROGRAM_MODE){
-//            	case MODE_CIRCLES:
-//            		new_point.x = mouseX;
-//            		new_point.y = mouseY;
-//            		main_contour.push_back(new_point);
-//            		break;
-//            	case MODE_CONTOUR:
-//            		new_point.x = mouseX;
-//            		new_point.y = mouseY;
-//            		main_contour.push_back(new_point);
-//            		break;
-//            	case MODE_CONTOUR_FILLED:
-//            		break;
-//            	case MODE_HERMIT_CURVE:
-//            		break;
-//            	case MODE_HERMIT_CURVE:
-//            		break;
-//            	case MODE_HERMIT_CURVE:
-//            		break;
-//			}
+            
 			InvalidateRect(hwnd, NULL, FALSE);
             break;
             
