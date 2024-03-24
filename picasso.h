@@ -719,7 +719,7 @@ void ReorientSegments(Segments &segments) {
 }
 float slope(Segment S){
 	//division by 0 risk
-	if(S.finish.x - S.start.x == 0) return 10000;
+	if(S.finish.x - S.start.x == 0) return 1000;
 	return (S.finish.y - S.start.y)/(S.finish.x - S.start.x);
 }
 void ShortenSegments(Segments &segments) {
@@ -746,24 +746,35 @@ typedef struct {
 typedef std::vector<Edgeinfo> EdgeinfoRow;
 typedef std::vector<EdgeinfoRow> EdgeinfoTable;
 void fill_poly(Contour C){
+	if(C.size()<4)return;
 	Segments ss = convertContourToSegments(C);
 	ReorientSegments(ss);
+    ShortenSegments(ss);
+    
+    // Remove edges with length less than 1
+    ss.erase(std::remove_if(ss.begin(), ss.end(), [](const Segment& segment) {
+        float dx = segment.finish.x - segment.start.x;
+        float dy = segment.finish.y - segment.start.y;
+        return std::hypot(dx, dy) < 1.0f;
+    }), ss.end());
+    
+	std::sort(ss.begin(), ss.end(), CompareSegments);
 	
 	std::vector<float> mVector(ss.size());
 	for (int i = 0; i < ss.size(); ++i) {
         mVector[i] = slope(ss[i]); 
     }
-    ShortenSegments(ss);
-	std::sort(ss.begin(), ss.end(), CompareSegments);
-	
 	//
 	float ymin = ss[0].start.y;
 	float ymax = getMaxY(ss);
-	EdgeinfoTable table(static_cast<int>(ymax-ymin));
+	EdgeinfoTable table(static_cast<int>(ymax-ymin)+1);
 	for (int i = 0; i < ss.size(); ++i) {
 		const Segment &segment = ss[i];
         Edgeinfo A = (Edgeinfo){
-        	segment, segment.finish.y - segment.start.y, segment.start.x, 1.0/mVector[i]
+        	segment, 
+			segment.finish.y - segment.start.y, 
+			segment.start.x, 
+			(segment.finish.x - segment.start.x == 0) ? FLT_MAX : 1.0f / mVector[i]
 		};
         table[static_cast<int>(segment.start.y-ymin)].push_back(A);
     }
@@ -779,18 +790,18 @@ void fill_poly(Contour C){
 		if(!ZAH.empty()){
 			std::sort(ZAH.begin(), ZAH.end(), [](const Edgeinfo& a, const Edgeinfo& b) { return a.x < b.x; });
 		}
-		for(int i = 0; i<ZAH.size()-1; i+=2){
-			if((int)ZAH[i].x != (int)ZAH[i+1].x){
-				drawLine(  (Point){ ZAH[i].x, y}, (Point) {ZAH[i+1].x, y}, main_color);
+		for(int k = 0; k<ZAH.size()-1; k+=2){
+			if(static_cast<int>(ZAH[k].x) != static_cast<int>(ZAH[k + 1].x)){
+				drawLine(  (Point){ ZAH[k].x, y}, (Point) {ZAH[k+1].x, y}, main_color);
 			};
 		}
 		//delete from ZAH all edges  with dy=0;
 		ZAH.erase(std::remove_if(ZAH.begin(), ZAH.end(), [](const Edgeinfo& edge) {
 	    	return edge.dy < 0.5;
 		}), ZAH.end());
-		for(int i = 0; i<ZAH.size(); i++){
-			ZAH[i].dy--;
-			ZAH[i].x = ZAH[i].x + ZAH[i].w;
+		for(int k = 0; k<ZAH.size(); k++){
+			ZAH[k].dy--;
+			ZAH[k].x = ZAH[k].x + ZAH[k].w;
 		}
 		y++;
 	}

@@ -18,6 +18,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cfloat>
 
 //My header,
 #include "picasso.h"
