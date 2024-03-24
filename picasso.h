@@ -626,8 +626,9 @@ void fill_sliced_triangle(Contour C){
 			}
 			x1 += we1;
 			x2 += we2;
-			y+=1;
+			
 		}
+		y+=1;
 	}
 }
 void fill_triangle(Contour C){
@@ -657,8 +658,6 @@ void fill_triangle(Contour C){
 			fill_sliced_triangle(lower);
 		}
 	}
-    
-	
 };
 void fill_poly(Contour C){
 	
