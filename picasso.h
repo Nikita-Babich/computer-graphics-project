@@ -174,6 +174,9 @@ void DrawPixel(int x, int y, COLORREF color) {
         buffer[y][x]= color;
     }
 }
+void DrawPoint(Point A, COLORREF color){
+	DrawPixel(static_cast<float>(A.x),static_cast<float>(A.y),color);
+}
 // Function to transfer buffer to screen
 void UpdateScreen(HDC hdc) {
     if (buffer != NULL) {
@@ -446,15 +449,6 @@ void br_circle(  Pixel start, Pixel end, COLORREF color) {
 		//6    3
 		//7    2
 		//  81
-//		SetPixel(  xc + x, yc  - y, color); //1
-//		SetPixel(hdc, xc - x, yc  - y, color); //8
-//		SetPixel(hdc, xc  - y, yc - x, color); //3
-//		SetPixel(hdc, xc  - y, yc + x, color); //2
-//
-//		SetPixel(hdc, xc + x, yc  + y, color); //4
-//		SetPixel(hdc, xc - x, yc  + y, color); //5
-//		SetPixel(hdc, xc  + y, yc - x, color); //6
-//		SetPixel(hdc, xc  + y, yc + x, color); //7
 
 		DrawPixel( xc + x, yc  - y, color); //1
 		DrawPixel( xc - x, yc  - y, color); //8
@@ -601,8 +595,37 @@ void drawCoons(Contour C){
 }
 
 int triangle_method = 0;
+COLORREF colorchooser(Contour C){
+	return RED;
+}
 void fill_triangle(Contour C){
-	
+	std::sort(C.begin(), C.end(), [](const Point& a, const Point& b) {
+        if (a.y == b.y) return a.x < b.x;
+        return a.y < b.y;
+    });
+    if(C[0].y == C[1].y) {
+		Segment e1 = (Segment){ C[0], C[2] };
+		Segment e2 = (Segment){ C[1], C[2] };
+		float we1 = (C[2].x - C[0].x) / (C[2].y - C[0].y);
+		float we2 = (C[2].x - C[1].x) / (C[2].y - C[1].y);
+		float y = e1.start.y; float ymax = e1.finish.y;
+		float x1 = e1.start.x; float x2 = e2.start.x;
+		while(y < ymax){
+			if (x1!=x2){
+				for(float i = std::min(x1, x2); i <= std::max(x1, x2); i=i+1){
+					DrawPixel(static_cast<float>(i),static_cast<float>(y), colorchooser(C));
+				}
+				x1 += we1;
+				x2 += we2;
+				y+=1;
+			}
+		}
+	} else if (C[1].y == C[2].y){
+		
+	} else {
+		
+	}
+    
 	
 };
 void fill_poly(Contour C){
@@ -664,7 +687,6 @@ void drawContour(  Contour C, COLORREF color){
 				C = flip90(C);
 			}
 			(size==3) ? (fill_triangle(C)) : (fill_poly(C));
-			
     		break;
     	case MODE_HERMIT_CURVE:
     		if(size>=1) drawPluses(C,RED);
