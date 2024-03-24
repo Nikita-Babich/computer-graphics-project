@@ -4,7 +4,7 @@
 
 //API
 #include <windows.h>
-#include <commdlg.h> //colorpicker, doesn't work
+#include <commdlg.h>
 #include <WindowsX.h>
 
 //Frequently used
@@ -17,6 +17,7 @@
 //Task specific
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 //My header,
 #include "picasso.h"

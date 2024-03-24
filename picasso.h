@@ -7,6 +7,7 @@
 #include <windows.h>
 #endif
 
+
 #define WINDOW_HEIGHT 800
 #define WINDOW_WIDTH 800
 #define DRAW_HEIGHT 400
@@ -595,35 +596,66 @@ void drawCoons(Contour C){
 }
 
 int triangle_method = 0;
-COLORREF colorchooser(Contour C){
+COLORREF colorchooser(float x, float y, Contour C){
+	if(triangle_method){ //blend
+		
+	} else { //closest point
+		
+	};
 	return RED;
+}
+void fill_sliced_triangle(Contour C){
+	Segment e1, e2; float we1, we2;
+	if(C[0].y == C[1].y){
+		e1 = (Segment){ C[0], C[2] };
+		e2 = (Segment){ C[1], C[2] };
+		we1 = (C[2].x - C[0].x) / (C[2].y - C[0].y);
+		we2 = (C[2].x - C[1].x) / (C[2].y - C[1].y);
+	} else {
+		e1 = (Segment){ C[0], C[1] };
+		e2 = (Segment){ C[0], C[2] };
+		we1 = (C[1].x - C[0].x) / (C[1].y - C[0].y);
+		we2 = (C[2].x - C[0].x) / (C[2].y - C[0].y);
+	};
+	float y = e1.start.y; float ymax = e1.finish.y;
+	float x1 = e1.start.x; float x2 = e2.start.x;
+	while(y < ymax){
+		if (x1!=x2){
+			for(float i = std::min(x1, x2); i <= std::max(x1, x2); i=i+1){
+				DrawPixel(static_cast<int>(i),static_cast<int>(y), colorchooser(i,y,C));
+			}
+			x1 += we1;
+			x2 += we2;
+			y+=1;
+		}
+	}
 }
 void fill_triangle(Contour C){
 	std::sort(C.begin(), C.end(), [](const Point& a, const Point& b) {
         if (a.y == b.y) return a.x < b.x;
         return a.y < b.y;
     });
-    if(C[0].y == C[1].y) {
-		Segment e1 = (Segment){ C[0], C[2] };
-		Segment e2 = (Segment){ C[1], C[2] };
-		float we1 = (C[2].x - C[0].x) / (C[2].y - C[0].y);
-		float we2 = (C[2].x - C[1].x) / (C[2].y - C[1].y);
-		float y = e1.start.y; float ymax = e1.finish.y;
-		float x1 = e1.start.x; float x2 = e2.start.x;
-		while(y < ymax){
-			if (x1!=x2){
-				for(float i = std::min(x1, x2); i <= std::max(x1, x2); i=i+1){
-					DrawPixel(static_cast<float>(i),static_cast<float>(y), colorchooser(C));
-				}
-				x1 += we1;
-				x2 += we2;
-				y+=1;
-			}
+    if(C[0].y == C[1].y || C[1].y == C[2].y) {
+    	fill_sliced_triangle(C);
+	} else { // slicing
+		float m = (C[2].y - C[0].y)/(C[2].x - C[0].x);
+		Point P = (Point){
+			(C[1].y-C[0].y)/m + C[0].x,
+			C[1].y
+		};
+		Contour upper;
+		Contour lower;
+		if(C[1].x < P.x){
+			upper.push_back(C[0]); upper.push_back(C[1]); upper.push_back(P);
+			lower.push_back(C[1]); lower.push_back(P); lower.push_back(C[2]);
+			fill_sliced_triangle(upper);
+			fill_sliced_triangle(lower);
+		} else {
+			upper.push_back(C[0]); upper.push_back(P); upper.push_back(C[1]);
+			lower.push_back(P); lower.push_back(C[1]); lower.push_back(C[2]);
+			fill_sliced_triangle(upper);
+			fill_sliced_triangle(lower);
 		}
-	} else if (C[1].y == C[2].y){
-		
-	} else {
-		
 	}
     
 	
@@ -674,7 +706,7 @@ void drawContour(  Contour C, COLORREF color){
     		drawRect((Point){0,0}, (Point){DRAW_WIDTH,DRAW_HEIGHT}, RED);
 			if(size==2){
 				C = sliceContour(C,E,0); //problematic
-				f = convertContourToSegments(C2);
+				f = convertContourToSegments(C);
 				drawSegments(  f, main_color);
 			} else if (size>2){
 				C = sliceContour(C,E,0);
@@ -686,7 +718,7 @@ void drawContour(  Contour C, COLORREF color){
 				C = sliceContour(C,E,-DRAW_HEIGHT);
 				C = flip90(C);
 			}
-			(size==3) ? (fill_triangle(C)) : (fill_poly(C));
+			if(size==3) { fill_triangle(C);} else { fill_poly(C); };
     		break;
     	case MODE_HERMIT_CURVE:
     		if(size>=1) drawPluses(C,RED);
