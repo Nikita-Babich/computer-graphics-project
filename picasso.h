@@ -799,9 +799,11 @@ void fill_poly(Contour C){
 		ZAH.erase(std::remove_if(ZAH.begin(), ZAH.end(), [](const Edgeinfo& edge) {
 	    	return edge.dy < 0.5;
 		}), ZAH.end());
-		for(int k = 0; k<ZAH.size(); k++){
-			ZAH[k].dy--;
-			ZAH[k].x = ZAH[k].x + ZAH[k].w;
+		if (!ZAH.empty()) {
+			for(int k = 0; k<ZAH.size(); k++){
+				ZAH[k].dy--;
+				ZAH[k].x = ZAH[k].x + ZAH[k].w;
+			}
 		}
 		y++;
 	}
